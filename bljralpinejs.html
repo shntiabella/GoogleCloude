@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Belajar tailwind</title>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+     <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        blue:'#abdbe3',
+                        coklat:'#873e23',
+                        pink: '#ffadf0',
+                        white: '#f7edf6',
+                    },
+                },
+            },
+        }
+    </script>
+</head>
+
+<body class="flex min-h-screen flex-col bg-pink">
+    <header x-data="{searchOpen : false}"class="sticky top-0 border-b border-slate-200 bg-slate-800">
+        <nav class="mx-auto max-w-6xl px-6 lg:px-10">
+            <div class="flex h-16 items-center justify-between">
+
+                <!--logo-->
+                <a class="flex items-center gap-3"> 
+                    <img src="img/logo.png"alt="Logo" class="h-10 w-full object-contain">
+                    <span class="text-lg font-semibold text-blue-700">Belajar Tailwind</span>
+                </a>
+
+                <!--menu desktop-->
+                <div class="hidden items-center md:flex">
+                    <div x-show="!searchOpen" x-transition:enter="transistion duration-200"
+                        x-transition:enter-start="opacity-0 -translate-y-1"
+                        x-transition: enter-end="opacity-100 -translate-y-0" class="flex items-center gap-4">
+                        
+                        <button type="button" arial-label="buka pencarian"
+                            @click="searchOpen = true; $nextTick(() => $refs.searchInput.focus())"
+                            class="rounded-lg p-2 text-white transition hover:bg-white">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5">
+                            <path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11ZM2 9a7 7 0 1 1 12.452 4.391l3.328 3.329a.75.75 0 1 1-1.06 1.06l-3.329-3.328A7 7 0 0 1 2 9Z" clip-rule="evenodd" />
+                            </svg>
+
+                        </button>
+
+                    </div>
+
+                    <div class="flex items-center gap-8 text-white">
+                        <a class="font-medium text-slate-700 transition hover:text-red-700"> beranda</a>
+                        <a class="font-medium text-slate-700 transition hover:text-red-700"> tentang</a>
+                        <a class="font-medium text-slate-700 transition hover:text-red-700"> kontak</a>
+                    </div>
+
+                    <!--input search-->
+                    <div x-show="serchOpen" x-cloak x-transition:enter="transition duration-200"
+                        x-transition:enter-start="opacity-100 translate-x-3"
+                        x-transition:enter-end="opacity-0 translate-x-0"
+                        x-transition:leave="transition duration-1500"
+                        x-transition:leave-start="opacity-100 translate-x-0"
+                        x-transition:leave-end="opacity-0 translate-x-3"
+                        @click.outside="searchOpen = false"
+                        @keydown.escape.window="searchOpen = false"
+                        class="flex w-96 items-center gap-2">
+
+                        <div class="relative">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5">
+                            <path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11ZM2 9a7 7 0 1 1 12.452 4.391l3.328 3.329a.75.75 0 1 1-1.06 1.06l-3.329-3.328A7 7 0 0 1 2 9Z" clip-rule="evenodd" />
+                            </svg>
+
+
+                        </div>
+
+
+                    </div>
+                    
+
+                </div>
+                
+                <!--menu mobile-->
+                <button id="menuButton" type="button" aria-label="Buka menu navigasi" aria-expanded="false" 
+                        class="rounded-lg p-2 text-slate-700 transition hover:bg-slate-200 md:hidden">
+                    <!-- Hamburger icon -->    
+                    <svg id="hamburgerIcon" xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" /> 
+                    </svg>
+
+                    <!-- Close icon -->
+                    <svg id="closeIcon" xmlns="http://www.w3.org/2000/svg" class="hidden h-7 w-7" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /> 
+
+                    </svg> 
+                </button>
+                
+            </div>
+
+            <!-- menu mobile -->
+            <div id="mobileMenu" class="hidden border-6 border-slate-200 py-4 md:hidden" > 
+                <div class="flex flex-col gap-2">
+                    <a class="mobile-link rounded-lg px-4 py-3 font-medium
+                              text-slate-700 transition hover:text-blue-700"> beranda</a>
+                    <a class="mobile-link rounded-lg px-4 py-3 font-medium
+                              text-slate-700 transition hover:text-blue-700"> tentang</a>
+                    <a class="mobile-link rounded-lg px-4 py-3 font-medium
+                              text-slate-700 transition hover:text-blue-700"> kontak</a>
+                </div>
+                
+            </div>
+
+        </nav>
+    </header>
+
+<!--main content-->
+    <main class="mx-auto grid w-full max-w-6xl flex-1
+                grid-cols-1 gap-8 px-6 py-12
+                lg:grid-cols-1 lg:items-center lg:px-10"   >
+        <p class="font-bold text-red-500 text-center text-4xl hover:text-blue-700">ini halaman tailwindcss </p>
+        <p class="font-bold text-red-500 text-center text-4xl hover:text-blue-700">ini halaman tailwindcss </p>
+        <p class="font-bold text-red-500 text-center text-4xl hover:text-blue-700">ini halaman tailwindcss </p>
+
+        
+
+        <div class="grid grid-cols-3 gap-6 md:grid-cols-3 lg:gris-cols-3">
+            <div class="overflow-hidden bg-white show-md transistion hover:-translate-y-1 hover:shadow-xl">
+                <img src="img/logo.png" alt="Gambar 1" class="h-48 w-full object-over">
+                <div class="p-6">
+                    <p class="mb-2 text-lg font-semibold text-slate-900">Belajar tailwind</p>
+                    <p class="text-sm text-slate-500">belajar tag tag pada tailwindcss</p>
+                </div>
+
+            </div>
+
+            <div class="overflow-hidden bg-white show-md transistion hover:-translate-y-1 hover:shadow-xl">
+                <img src="img/logo.png" alt="Gambar 1" class="h-48 w-full object-over">
+                <div class="p-6">
+                    <p class="mb-2 text-lg font-semibold text-slate-900">Belajar tailwind</p>
+                    <p class="text-sm text-slate-500">belajar tag tag pada tailwindcss</p>
+                </div>
+
+            </div>
+
+            <div class="overflow-hidden bg-white show-md transistion hover:-translate-y-1 hover:shadow-xl">
+                <img src="img/logo.png" alt="Gambar 1" class="h-48 w-full object-over">
+                <div class="p-6">
+                    <p class="mb-2 text-lg font-semibold text-slate-900">Belajar tailwind</p>
+                    <p class="text-sm text-slate-500">belajar tag tag pada tailwindcss</p>
+                </div>
+
+            </div>
+            
+
+        </div>
+        
+         <!--modal pop up-->
+            <section x-data="{modalOpen: false}" class="text-center">
+                <button type="button" @click="modalOpen = true" class="bg-yellow-500 px-6 py-3 text-pink hover:bg-pink">
+                    Buka Modal
+                </button>
+                <!--Modal-->
+                <div x-show="modalOpen" x-cloak x-transistion.opacity @keydown.escape.window="modalOpen = false"
+                    class="fixed inset-0 z-[60] flex items-center justify-center bg-pink px-4">
+
+                    <!--modal content-->
+                    <div x-show="modalOpen" x-transistion @click.outside="modalOpen = false" 
+                        class="w-full h-[50px]  max-w-md bg-white p-6 text-center shadow" >
+                        <p>Ini adalah control pop up</p>
+                    </div>
+
+                </div>
+
+            </section>
+
+    </main>
+
+    <footer id="footer" class="bg-slate-800 text-slate-300 ">
+        <div class="mx-auto flex max-w-6xl flex-col gap-4 px-6 py-6
+                    text-center sm:flex-row sm:items-center
+                    sm:justify-between sm:text-left lg:px-10">
+            <p class="text-sm">
+                &copy; 2024 Belajar Tailwind. All rights reserved.
+            </p>
+            <div class="flex justify-center gap-5 text-sm">
+                <a class="transition hover:text-blue-700"> beranda</a>
+                <a class="transition hover:text-blue-700"> tentang</a>
+                <a class="transition hover:text-blue-700"> kontak</a>
+                
+            </div>
+
+        </div>
+
+    </footer>
+
+<!-- <script>
+    const menuButton = document.getElementById('menuButton');
+    const mobileMenu = document.getElementById('mobileMenu');
+    const hamburgerIcon = document.getElementById('hamburgerIcon');
+    const closeIcon = document.getElementById('closeIcon');
+    const mobileLinks = mobileMenu.querySelectorAll('.mobile-link');
+
+    function closeMobileMenu() {
+        mobileMenu.classList.add('hidden');
+        hamburgerIcon.classList.remove('hidden');
+        closeIcon.classList.add('hidden');
+        menuButton.setAttribute('aria-expanded', 'false');
+    }
+
+    menuButton.addEventListener('click', function () {
+        const isClosed = mobileMenu.classList.contains('hidden');
+
+        mobileMenu.classList.toggle('hidden');
+        hamburgerIcon.classList.toggle('hidden');
+        closeIcon.classList.toggle('hidden');
+        menuButton.setAttribute('aria-expanded', isClosed ? 'true' : 'false');
+    });
+
+    mobileLinks.forEach(link => {
+        link.addEventListener('click', closeMobileMenu);
+    });
+</script> -->
+
+
+</body>
+
+</html>

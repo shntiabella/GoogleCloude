@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compute Engine - Clone</title>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        white: '#FFFFFF',
+                        whitegrey: '#f8f9fa',
+                        green: '#1e8e3e',
+                        blue: '#1a73e8',
+                        text: '#202124',
+                        bg: '#f8f9fa',
+                        grey: '#e6f4ea',
+                        greyteks: '#5F6368',
+                        black: '#202124',
+                        bluedark: '#1A73E8',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        [x-cloak] { display: none !important; }
+        html { scroll-behavior: smooth; }
+    </style>
+</head>
+
+<body class="bg-slate-50" x-data="{ searchOpen: false, menuOpen: false, activeTab: {} }">
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-40">
+        <!-- BARIS 1: NAVIGASI UTAMA & FITUR ATAS -->
+        <div class="px-0 lg:px-8 bg:white">
+            <div class="flex items-center justify-between h-16">
+
+                <!-- KIRI: Logo & Menu Utama -->
+                <div class="flex items-center space-x-6">
+                    <a href="#" class="flex items-center gap-3">
+                        <img src="img/logogooglecloude.png" alt="Google Cloud" class="h-7 w-auto object-contain">
+                    </a>
+
+                    <!-- Navigasi Utama -->
+                    <nav class="hidden lg:flex items-center space-x-6 text-sm font-normal text-greyteks h-16">
+                        <a href="#" class="hover:text-black transition">Ringkasan</a>
+                        <a href="#" class="hover:text-black transition">Solusi</a>
+                        <a href="#" class="text-black font-medium border-b-2 border-blue h-full flex items-center pt-0.5">Produk</a>
+                        <a href="#" class="hover:text-black transition">Harga</a>
+                        <a href="#" class="hover:text-black transition">Resource</a>
+                    </nav>
+                </div>
+
+                <!-- KANAN: Cari, Dokumen, Dukungan, Konsol, Titik 3 (Popup), Profil -->
+                <div class="hidden md:flex items-center space-x-6 text-lg font-normal text-greyteks">
+
+                    <!-- AREA ICON CARI / INPUT INTERAKTIF -->
+                    <div class="relative flex items-center">
+                        <button type="button"
+                                aria-label="buka pencarian"
+                                x-show="!searchOpen"
+                                @click="searchOpen = true; $nextTick(() => $refs.searchInput.focus())"
+                                class="p-2 text-greyteks hover:bg-white hover:text-black rounded-full transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                            </svg>
+                        </button>
+
+                        <div x-show="searchOpen"
+                             x-cloak
+                             x-transition:enter="transition-all duration-300 ease-out"
+                             x-transition:enter-start="opacity-0 w-0"
+                             x-transition:enter-end="opacity-100 w-56 sm:w-72"
+                             x-transition:leave="transition-all duration-200 ease-in"
+                             x-transition:leave-start="opacity-100 w-56 sm:w-72"
+                             x-transition:leave-end="opacity-0 w-0"
+                             @click.outside="searchOpen = false"
+                             @keydown.escape.window="searchOpen = false"
+                             class="overflow-hidden flex items-center gap-2 bg-white border border-gray-300 rounded-lg px-3 py-1.5">
+
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 text-gray-500 shrink-0">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                            </svg>
+
+                            <input x-ref="searchInput"
+                                   type="text"
+                                   placeholder="Search"
+                                   class="w-full bg-transparent border-none text-[15px] text-black focus:outline-none">
+
+                            <button type="button" @click="searchOpen = false" class="text-gray-400 hover:text-black shrink-0">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
+                                    <path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Dokumen, Dukungan, Konsol -->
+                    <div class="hidden lg:flex items-center space-x-6 text-sm font-normal text-greyteks h-16">
+                        <a href="#" class="hover:text-black transition">Dokumen</a>
+                        <a href="#" class="hover:text-black transition">Dukungan</a>
+                        <a href="#" class="text-blue font-normal hover:underline">Konsol</a>
+                    </div>
+
+                    <!-- CONTAINER DROPDOWN TITIK TIGA -->
+                    <div class="relative">
+                        <button @click="menuOpen = !menuOpen"
+                                aria-label="Google Developer Program"
+                                class="p-2 border border-gray-300 text-greyteks rounded-full hover:bg-gray-100 transition shrink-0 focus:outline-none">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 12.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 18.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Z" />
+                            </svg>
+
+                        </button>
+
+                        <div x-show="menuOpen"
+                             x-cloak
+                             x-transition:enter="transition ease-out duration-150"
+                             x-transition:enter-start="opacity-0 scale-95 -translate-y-2"
+                             x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                             x-transition:leave="transition ease-in duration-100"
+                             x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+                             x-transition:leave-end="opacity-0 scale-95 -translate-y-2"
+                             @click.outside="menuOpen = false"
+                             class="absolute right-0 mt-3 w-[360px] sm:w-[420px] bg-white rounded-2xl shadow-2xl border border-gray-200 p-8 z-50 text-left">
+
+                            <div class="flex items-center gap-2 mb-6">
+                                <span class="text-3xl font-medium tracking-tight">
+                                    <span class="text-[#4285F4]">G</span><span class="text-[#EA4335]">o</span><span class="text-[#FBBC05]">o</span><span class="text-[#4285F4]">g</span><span class="text-[#34A853]">l</span><span class="text-[#EA4335]">e</span>
+                                </span>
+                                <span class="text-2xl font-normal text-gray-600">for Developers</span>
+                            </div>
+                            <h3 class="text-xl font-medium text-gray-900 text-center leading-snug mb-4">
+                                Bergabunglah dengan Program Google Developer
+                            </h3>
+                            <p class="text-gray-600 text-[15px] leading-relaxed text-left mb-8">
+                                Dapatkan akses ke alat AI, pelatihan eksklusif, dan akses orang dalam. Bergabunglah sekarang dan percepat perjalanan developer Anda.
+                            </p>
+                            <div class="flex items-center justify-end gap-3">
+                                <button @click="menuOpen = false"
+                                        type="button"
+                                        class="px-5 py-2 text-blue font-medium text-base rounded-full hover:bg-blue-50 transition">
+                                    Dismiss
+                                </button>
+                                <a href="#"
+                                   class="px-7 py-2 bg-blue text-white font-medium text-base rounded-full hover:bg-blue/90 transition shadow-sm">
+                                    Start
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Avatar Profil -->
+                    <div class="w-8 h-8 rounded-full bg-[#8d6e63] text-white flex items-center justify-center font-normal text-base shrink-0 cursor-pointer select-none">
+                        S
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BARIS 2: SUB-HEADER -->
+        <div class="px-6 lg:px-5 py-2 flex items-center justify-between">
+            <h1 class="text-xl font-normal text-greyteks">Compute Engine</h1>
+            <div class="flex items-center gap-3">
+                <a href="#" class="border border-gray-300 text-black text-sm font-medium px-4 py-1 rounded-full hover:bg-gray-50 active:scale-95 transition">
+                    Hubungi kami
+                </a>
+                <a href="#" class="bg-bluedark text-white text-sm font-medium px-4 py-1 rounded-full hover:bg-blue/90 active:scale-95 transition shadow-xs">
+                    Mulai gratis
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- BODY: SIDEBAR + KONTEN -->
+    <div class="flex max-w-[1900px] mx-auto" x-data="{ active: 'overview' }">
+
+        <!-- SIDEBAR -->
+        <aside class="hidden md:flex md:flex-col w-64 shrink-0 border-r border-gray-200 bg-white sticky top-[97px] h-[calc(100vh-97px)]">
+            <nav class="text-[15px] text-greyteks overflow-y-auto flex-1 py-4">
+                <a href="#overview" @click="active='overview'"
+                   :class="active==='overview' ? 'bg-grey text-blue font-medium' : 'hover:bg-gray-50'"
+                   class="block px-6 py-2 rounded-r-full mr-3 transition">Compute Engine</a>
+                <a href="#fitur" @click="active='fitur'"
+                   :class="active==='fitur' ? 'bg-grey text-blue font-medium' : 'hover:bg-gray-50'"
+                   class="block px-6 py-2 rounded-r-full mr-3 transition">Fitur</a>
+                <a href="#opsi" @click="active='opsi'"
+                   :class="active==='opsi' ? 'bg-grey text-blue font-medium' : 'hover:bg-gray-50'"
+                   class="block px-6 py-2 rounded-r-full mr-3 transition">Opsi</a>
+                <a href="#cara-kerja" @click="active='cara-kerja'"
+                   :class="active==='cara-kerja' ? 'bg-grey text-blue font-medium' : 'hover:bg-gray-50'"
+                   class="block px-6 py-2 rounded-r-full mr-3 transition">Cara Kerjanya</a>
+
+                <p class="uppercase text-xs tracking-wide text-gray-400 px-6 pt-5 pb-1">Penggunaan Umum</p>
+                <a href="#vm-pertama" class="block px-6 py-2 hover:bg-gray-50 rounded-r-full mr-3 transition">Membuat VM pertama Anda</a>
+                <a href="#migrasi" class="block px-6 py-2 hover:bg-gray-50 rounded-r-full mr-3 transition">Memigrasikan aplikasi perusahaan</a>
+                <a href="#backup" class="block px-6 py-2 hover:bg-gray-50 rounded-r-full mr-3 transition">Mencadangkan dan memulihkan aplikasi Anda</a>
+                <a href="#container" @click="active='container'"
+                   :class="active==='container' ? 'bg-grey text-blue font-medium' : 'hover:bg-gray-50'"
+                   class="block px-6 py-2 rounded-r-full mr-3 transition">Menjalankan aplikasi modern berbasis container</a>
+                <a href="#ai" class="block px-6 py-2 hover:bg-gray-50 rounded-r-full mr-3 transition">Infrastruktur untuk workload AI</a>
+
+                <a href="#harga" @click="active='harga'"
+                   :class="active==='harga' ? 'bg-grey text-blue font-medium' : 'hover:bg-gray-50'"
+                   class="block px-6 py-2 mt-4 rounded-r-full mr-3 transition">Harga</a>
+                <a href="#kasus-bisnis" @click="active='kasus-bisnis'"
+                   :class="active==='kasus-bisnis' ? 'bg-grey text-blue font-medium' : 'hover:bg-gray-50'"
+                   class="block px-6 py-2 rounded-r-full mr-3 transition">Kasus Bisnis</a>
+                <a href="#partner" @click="active='partner'"
+                   :class="active==='partner' ? 'bg-grey text-blue font-medium' : 'hover:bg-gray-50'"
+                   class="block px-6 py-2 rounded-r-full mr-3 transition">Partner &amp; Integrasi</a>
+                <a href="#faq" @click="active='faq'"
+                   :class="active==='faq' ? 'bg-grey text-blue font-medium' : 'hover:bg-gray-50'"
+                   class="block px-6 py-2 rounded-r-full mr-3 transition">FAQ</a>
+            </nav>
+
+            <!-- FOOTER SIDEBAR -->
+            <div class="border-t border-gray-200 py-3 text-sm">
+                <a href="#" class="flex items-center gap-3 px-6 py-2 text-blue hover:bg-gray-50 transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-5 h-5 shrink-0">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6M9 8h1m-4 12h12a2 2 0 002-2V6a2 2 0 00-2-2H8L4 8v10a2 2 0 002 2z"/>
+                    </svg>
+                    Catatan rilis
+                </a>
+                <a href="#" class="flex items-center gap-3 px-6 py-2 text-blue hover:bg-gray-50 transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-5 h-5 shrink-0">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422A12.083 12.083 0 0121 14.5V19M12 14l-6.16-3.422A12.083 12.083 0 003 14.5V19"/>
+                    </svg>
+                    Panduan dan referensi
+                </a>
+                <a href="#" class="flex items-center gap-3 px-6 py-2 text-blue hover:bg-gray-50 transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-5 h-5 shrink-0">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 2l3.5 6.5L22 9.3l-5 4.6L18.2 21 12 17.6 5.8 21 7 13.9l-5-4.6 6.5-.8L12 2z"/>
+                    </svg>
+                    Arsitektur referensi
+                </a>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="flex-1 min-w-0 px-6 lg:px-10 py-8 space-y-16">
+
+            <!-- OVERVIEW -->
+            <section id="overview" class="scroll-mt-28">
+                <div class="bg-grey border border-green/20 rounded-lg px-5 py-3 flex items-center justify-between mb-8">
+                    <p class="text-sm text-green">Dapatkan rasio harga-performa 2x lebih baik dengan VM N4A berbasis Axion, yang kini tersedia secara umum.</p>
+                    <button class="w-8 h-8 rounded-full bg-green text-white flex items-center justify-center shrink-0 ml-4 hover:bg-green/90 active:scale-95 transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 9H3a1 1 0 110-2h9.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+                    <div class="lg:col-span-2">
+                        <p class="text-sm text-greyteks tracking-wide mb-2">COMPUTE ENGINE</p>
+                        <h2 class="text-4xl font-bold text-black leading-tight mb-6">Virtual machine untuk workload apa pun</h2>
+                        <p class="text-lg text-greyteks leading-relaxed mb-8">
+                            Jalankan VM di infrastruktur cloud berperforma tinggi dan andal. Pilih dari jenis mesin kustom atau preset untuk server web, database, dan aplikasi yang mendukung agen Anda.
+                        </p>
+                        <div class="flex items-center gap-3">
+                            <a href="#" class="bg-blue text-white text-[15px] font-medium px-7 py-3 rounded-full hover:bg-blue/90 active:scale-95 transition">Coba di konsol</a>
+                            <a href="#" class="border border-gray-300 text-black text-[15px] font-medium px-7 py-3 rounded-full hover:bg-gray-50 active:scale-95 transition">Hubungi bagian penjualan</a>
+                        </div>
+                    </div>
+
+                    <div class="bg-whitegrey rounded-2xl p-6">
+                        <p class="text-sm font-medium text-black mb-4">Sorotan produk</p>
+                        <ul class="space-y-4 text-[15px]">
+                            <li class="flex items-start gap-3">
+                                <span class="text-greyteks">↓</span>
+                                <a href="#" class="text-blue hover:underline">Panduan memilih dan men-deploy VM pertama Anda</a>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <span class="text-greyteks">↓</span>
+                                <a href="#" class="text-blue hover:underline">Melindungi data sensitif dengan Confidential VM</a>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <span class="text-greyteks">↓</span>
+                                <a href="#" class="text-blue hover:underline">Menyesuaikan VM untuk performa dan biaya</a>
+                            </li>
+                        </ul>
+                        <div class="h-px bg-gradient-to-r from-green to-blue my-4"></div>
+                        <a href="#" class="flex items-center gap-3 hover:opacity-80 transition">
+                            <div class="w-16 h-12 bg-blue/10 rounded flex items-center justify-center shrink-0">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-blue"><path d="M8 5v14l11-7z"/></svg>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-black">Cara memilih VM yang tepat</p>
+                                <p class="text-xs text-greyteks">Video penjelasan 5 menit</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- FITUR -->
+            <section id="fitur" class="scroll-mt-28">
+                <p class="text-sm tracking-wide text-greyteks mb-6">FITUR</p>
+                <div class="divide-y divide-gray-200">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 py-8">
+                        <h3 class="text-xl font-medium text-black">Konfigurasi kustom dan preset</h3>
+                        <div class="md:col-span-2 text-[15px] text-greyteks leading-relaxed space-y-3">
+                            <p>Deploy aplikasi dalam hitungan menit dengan sampel bawaan yang disebut Solusi Praktis. Buat situs dinamis, VM dengan load balancing, aplikasi web tiga tingkat, atau aplikasi web e-commerce.</p>
+                            <p>Pilih dari jenis, ukuran, dan konfigurasi mesin yang telah ditetapkan untuk workload apa pun, dari aplikasi perusahaan besar hingga workload modern (seperti container) atau project AI/ML yang memerlukan GPU dan TPU.</p>
+                            <p>Untuk fleksibilitas lebih besar, buat jenis mesin kustom antara 1 hingga 96 vCPU dengan memori hingga 8,0 GB per core. Dan manfaatkan salah satu dari banyak opsi block storage, mulai dari Persistent Disk yang fleksibel hingga SSD Lokal berperforma tinggi dan berlatensi rendah.</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 py-8">
+                        <h3 class="text-xl font-medium text-black">Keandalan terdepan di industri</h3>
+                        <div class="md:col-span-2 text-[15px] text-greyteks leading-relaxed space-y-3">
+                            <p>Compute Engine menawarkan SLA ketersediaan komputasi instance tunggal terbaik dari penyedia cloud mana pun: ketersediaan 99,95% untuk VM yang dioptimalkan untuk memori dan 99,9% untuk semua kelompok VM lainnya. </p>
+                            <p>Apakah periode nonaktif membuat Anda terjaga di malam hari? Pertahankan kontinuitas workload selama peristiwa yang direncanakan dan tidak direncanakan dengan migrasi langsung. Saat VM berhenti berfungsi, Compute Engine akan melakukan migrasi langsung ke host lain di zona yang sama.</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 py-8">
+                        <h3 class="text-xl font-medium text-black">Otomatisasi dan rekomendasi untuk efisiensi resource</h3>
+                        <div class="md:col-span-2 text-[15px] text-greyteks leading-relaxed space-y-3">
+                            <p>Menambahkan VM secara otomatis untuk menangani beban puncak dan mengganti instance berperforma buruk dengan grup instance terkelola. </p>
+                            <p>Sesuaikan resource Anda secara manual menggunakan data historis dengan rekomendasi penyesuaian ukuran, atau jaminan kapasitas untuk lonjakan permintaan yang direncanakan dengan pemesanan untuk masa mendatang.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- OPSI (Pilih VM yang tepat) -->
+            <section id="opsi" class="scroll-mt-28">
+                <h3 class="text-2xl font-normal text-black mb-6">Pilih VM yang tepat</h3>
+                <div class="border border-gray-200 rounded-xl overflow-hidden">
+                    <div class="grid grid-cols-3 bg-whitegrey text-sm text-greyteks font-medium px-6 py-3">
+                        <span>Pengoptimalan</span>
+                        <span>Cocok untuk</span>
+                        <span>Rekomendasi</span>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-6 px-6 py-6 border-t border-gray-200">
+                        <div>
+                            <p class="font-medium text-black">Hemat</p>
+                            <p class="text-sm text-greyteks">Biaya per core paling rendah</p>
+                        </div>
+                        <ul class="text-sm text-greyteks list-disc pl-4 space-y-1">
+                            <li>Web dan aplikasi trafik rendah</li>
+                            <li>Lingkungan development &amp; testing</li>
+                            <li>Microservice dalam container</li>
+                        </ul>
+                        <p class="text-sm"><span class="font-medium text-black">Seri E</span> tujuan umum — <a href="#" class="text-blue hover:underline">E2</a></p>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-6 px-6 py-6 border-t border-gray-200">
+                        <div>
+                            <p class="font-medium text-black">Fleksibel</p>
+                            <p class="text-sm text-greyteks">Rasio harga-performa seimbang</p>
+                        </div>
+                        <ul class="text-sm text-greyteks list-disc pl-4 space-y-1">
+                            <li>Trafik rendah hingga menengah</li>
+                            <li>Basis data skala kecil-menengah</li>
+                            <li>Data pipeline</li>
+                        </ul>
+                        <p class="text-sm"><span class="font-medium text-black">Seri N</span> tujuan umum — <a href="#" class="text-blue hover:underline">N4, N2, N1</a></p>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-6 px-6 py-6 border-t border-gray-200">
+                        <div>
+                            <p class="font-medium text-black">Performa</p>
+                            <p class="text-sm text-greyteks">Performa terbaik untuk beban berat</p>
+                        </div>
+                        <ul class="text-sm text-greyteks list-disc pl-4 space-y-1">
+                            <li>Trafik tinggi</li>
+                            <li>Server game &amp; iklan</li>
+                            <li>Analitik data</li>
+                        </ul>
+                        <p class="text-sm"><span class="font-medium text-black">Seri C</span> tujuan umum — <a href="#" class="text-blue hover:underline">C4, C3</a></p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- CARA KERJANYA -->
+            <section id="cara-kerja" class="scroll-mt-28">
+                <p class="text-sm tracking-wide text-greyteks mb-6">CARA KERJANYA</p>
+                <div class="bg-black rounded-2xl p-8 grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                    <div>
+                        <p class="text-white text-lg leading-relaxed">
+                            Compute Engine adalah layanan komputasi yang memungkinkan Anda membuat dan menjalankan virtual machine
+                            di atas infrastruktur Google. Skalakan dari satu instance hingga cluster besar tanpa investasi perangkat di muka.
+                        </p>
+                        <button class="mt-6 bg-white text-black text-[15px] font-medium px-6 py-2.5 rounded-full hover:bg-gray-100 active:scale-95 transition">Panduan: Cara memulai</button>
+                    </div>
+                    <div class="bg-whitegrey rounded-xl p-6 flex items-center justify-center gap-4">
+                        <template x-for="i in 3" :key="i">
+                            <div class="w-16 h-24 bg-blue rounded flex items-center justify-center text-white">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path d="M12 6a2 2 0 100-4 2 2 0 000 4zm0 8a2 2 0 100-4 2 2 0 000 4zm0 8a2 2 0 100-4 2 2 0 000 4z"/></svg>
+                            </div>
+                        </template>
+                        <button class="w-10 h-10 rounded-full bg-green text-white flex items-center justify-center shrink-0 hover:bg-green/90 active:scale-95 transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5"><path d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Penggunaan umum: tabs -->
+                <div id="vm-pertama" class="mt-14 scroll-mt-28" x-data="{ tab: 'tutorial' }">
+                    <h3 class="text-2xl font-normal text-black mb-4">Membuat VM pertama Anda</h3>
+                    <div class="flex gap-8 border-b border-gray-200 text-[15px] text-greyteks mb-6">
+                        <button @click="tab='tutorial'" :class="tab==='tutorial' ? 'text-black border-b-2 border-blue' : ''" class="pb-3 flex items-center gap-2">🔧 Tutorial, panduan memulai, dan lab</button>
+                        <button @click="tab='referensi'" :class="tab==='referensi' ? 'text-black border-b-2 border-blue' : ''" class="pb-3 flex items-center gap-2">📄 Referensi pembelajaran</button>
+                    </div>
+
+                    <div x-show="tab==='tutorial'">
+                        <h4 class="font-medium text-black mb-3">Tiga cara untuk memulai</h4>
+                        <ol class="list-decimal pl-5 text-[15px] text-greyteks space-y-2 mb-6">
+                            <li>Ikuti <a href="#" class="text-blue hover:underline">lab atau tutorial</a> singkat untuk memperkirakan biaya migrasi dan mempelajari cara memindahkan VM Linux, VMware, atau server SQL.</li>
+                            <li>Kunjungi <a href="#" class="text-blue hover:underline">Pusat Arsitektur Cloud</a> untuk panduan perencanaan dan desain migrasi.</li>
+                            <li>Ajukan bantuan lewat program migrasi dan modernisasi terkelola dari Google Cloud.</li>
+                        </ol>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="border border-gray-200 rounded-lg p-4 text-sm"><span class="text-green font-medium">Blog:</span> Mengenal Solusi Praktis</div>
+                            <div class="border border-gray-200 rounded-lg p-4 text-sm"><span class="text-green font-medium">Dokumentasi:</span> Membuat image VM kustom</div>
+                            <div class="border border-gray-200 rounded-lg p-4 text-sm"><span class="text-green font-medium">Dokumentasi:</span> Mengelola beberapa VM sebagai satu entity</div>
+                        </div>
+                    </div>
+                    <div x-show="tab==='referensi'" x-cloak class="text-[15px] text-greyteks">
+                        Kumpulan dokumentasi referensi API dan konsep inti akan tampil di sini.
+                    </div>
+                </div>
+
+                <div id="migrasi" class="mt-14 scroll-mt-28" x-data="{ tab: 'tutorial' }">
+                    <h3 class="text-2xl font-normal text-black mb-4">Memigrasikan aplikasi perusahaan</h3>
+                    <div class="flex gap-8 border-b border-gray-200 text-[15px] text-greyteks mb-6">
+                        <button @click="tab='tutorial'" :class="tab==='tutorial' ? 'text-black border-b-2 border-blue' : ''" class="pb-3">🔧 Tutorial, panduan memulai, dan lab</button>
+                        <button @click="tab='referensi'" :class="tab==='referensi' ? 'text-black border-b-2 border-blue' : ''" class="pb-3">📄 Referensi pembelajaran</button>
+                    </div>
+                    <div x-show="tab==='tutorial'" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="border border-gray-200 rounded-lg p-4 text-sm"><span class="text-green font-medium">Panduan &amp; checklist:</span> Memindahkan workload ke cloud publik</div>
+                        <div class="border border-gray-200 rounded-lg p-4 text-sm"><span class="text-green font-medium">Studi kasus:</span> Efisiensi biaya lewat modernisasi operasi</div>
+                        <div class="border border-gray-200 rounded-lg p-4 text-sm"><span class="text-green font-medium">Panduan:</span> Kunjungi Cloud Architecture Center</div>
+                    </div>
+                    <div x-show="tab==='referensi'" x-cloak class="text-[15px] text-greyteks">Referensi migrasi akan tampil di sini.</div>
+                </div>
+
+                <div id="backup" class="mt-14 scroll-mt-28">
+                    <h3 class="text-2xl font-normal text-black mb-4">Mencadangkan dan memulihkan aplikasi Anda</h3>
+                    <p class="text-[15px] text-greyteks">Lindungi workload dengan snapshot terjadwal dan strategi pemulihan bencana lintas region.</p>
+                </div>
+
+                <div id="container" class="mt-14 scroll-mt-28">
+                    <h3 class="text-2xl font-normal text-black mb-4">Menjalankan aplikasi modern berbasis container</h3>
+                    <p class="text-[15px] text-greyteks">Jalankan container di VM menggunakan Container-Optimized OS, atau kombinasikan dengan orkestrasi terkelola.</p>
+                </div>
+
+                <div id="ai" class="mt-14 scroll-mt-28">
+                    <h3 class="text-2xl font-normal text-black mb-4">Infrastruktur untuk workload AI</h3>
+                    <p class="text-[15px] text-greyteks">Gunakan mesin dengan akselerator GPU dan TPU untuk pelatihan dan inferensi model.</p>
+                </div>
+            </section>
+
+            <!-- HARGA -->
+            <section id="harga" class="scroll-mt-28">
+                <p class="text-sm tracking-wide text-greyteks mb-4">HARGA</p>
+                <div class="bg-green rounded-t-xl px-8 py-6 text-white">
+                    <h3 class="text-2xl font-medium">Cara kerja penetapan harga</h3>
+                    <p class="text-[15px] mt-1">Harga dihitung berdasarkan pemakaian virtual machine, jaringan, dan penyimpanan.</p>
+                </div>
+                <div class="border border-t-0 border-gray-200 rounded-b-xl divide-y divide-gray-200">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 px-8 py-6 items-center">
+                        <p class="font-medium text-black">Memulai tanpa biaya</p>
+                        <p class="text-[15px] text-greyteks md:col-span-1">Pengguna baru mendapat kredit uji coba senilai $300 selama 90 hari.</p>
+                        <p class="text-green text-xl font-medium text-right">Gratis</p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 px-8 py-6 items-center">
+                        <p class="font-medium text-black">Paket gratis</p>
+                        <p class="text-[15px] text-greyteks">Satu instance e2-micro, penyimpanan persistent disk hingga 30 GB, dan transfer keluar terbatas per bulan.</p>
+                        <p class="text-green text-xl font-medium text-right">Gratis</p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 px-8 py-6 items-center">
+                        <p class="font-medium text-black">Instance VM</p>
+                        <p class="text-[15px] text-greyteks">Bayar sesuai pemakaian, tanpa biaya di muka maupun biaya penghentian.</p>
+                        <p class="text-green text-xl font-medium text-right">Mulai $0,01</p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 px-8 py-6 items-center">
+                        <p class="font-medium text-black">Confidential VM</p>
+                        <p class="text-[15px] text-greyteks">Enkripsi data saat sedang digunakan maupun diproses.</p>
+                        <p class="text-green text-xl font-medium text-right">Mulai $0,936</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- KASUS BISNIS -->
+            <section id="kasus-bisnis" class="scroll-mt-28">
+                <p class="text-sm tracking-wide text-greyteks mb-4">KASUS BISNIS</p>
+                <h3 class="text-2xl font-normal text-black mb-2">Belajar dari pelanggan Compute Engine</h3>
+                <div class="h-px bg-gray-200 mb-8"></div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+                    <div class="lg:col-span-2">
+                        <h4 class="text-3xl font-medium text-black leading-snug mb-4">
+                            Dengan memindahkan puluhan ribu VM lokal ke cloud, sebuah maskapai reservasi global memangkas biaya IT-nya secara signifikan.
+                        </h4>
+                        <p class="text-sm text-greyteks mb-4">Direktur Teknologi, perusahaan reservasi perjalanan</p>
+                        <p class="text-[15px] text-greyteks leading-relaxed mb-6">
+                            Efisiensi operasional yang didapat membantu perusahaan menekan pengeluaran hingga ratusan juta dolar dalam beberapa tahun terakhir.
+                        </p>
+                        <button class="bg-blue text-white text-[15px] font-medium px-6 py-2.5 rounded-full hover:bg-blue/90 active:scale-95 transition">Tonton wawancaranya</button>
+                    </div>
+
+                    <div class="bg-whitegrey rounded-2xl p-6">
+                        <p class="text-sm font-medium text-black mb-4">Konten terkait</p>
+                        <div class="space-y-4 text-[15px] text-greyteks divide-y divide-gray-200">
+                            <p class="pb-4">Sebuah studio game menggunakan Cloud Load Balancing untuk menurunkan latensi jaringan secara drastis.</p>
+                            <p class="py-4">Dengan SLA waktu beroperasi 99,99%, sebuah peritel besar merasa yakin sistemnya akan tetap berjalan lancar.</p>
+                            <p class="pt-4">Sebuah platform e-commerce menggunakan GPU untuk mempercepat proses rekomendasi produknya.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PARTNER & INTEGRASI -->
+            <section id="partner" class="scroll-mt-28" x-data="{ ptab: 'penilaian' }">
+                <p class="text-sm tracking-wide text-greyteks mb-4">PARTNER &amp; INTEGRASI</p>
+                <h3 class="text-2xl font-normal text-black mb-6">Percepat migrasi Anda dengan partner</h3>
+
+                <div class="flex gap-8 border-b border-gray-200 text-[15px] text-greyteks mb-8">
+                    <button @click="ptab='penilaian'" :class="ptab==='penilaian' ? 'text-black font-medium border-b-2 border-blue' : ''" class="pb-3 transition">Penilaian dan perencanaan</button>
+                    <button @click="ptab='migrasi'" :class="ptab==='migrasi' ? 'text-black font-medium border-b-2 border-blue' : ''" class="pb-3 transition">Migrasi</button>
+                </div>
+
+                <div x-show="ptab==='penilaian'">
+                    <div class="flex flex-wrap items-center gap-x-14 gap-y-6 mb-8 opacity-80">
+                        <span class="text-lg font-semibold text-blue">☁ StratoZone</span>
+                        <span class="text-lg font-semibold text-orange-500">📊 RISC Networks</span>
+                        <span class="text-lg font-semibold text-black">Cloudamize</span>
+                        <span class="text-lg font-semibold text-black">ATA<span class="text-gray-400">DATA</span></span>
+                    </div>
+                    <p class="text-[15px] text-greyteks leading-relaxed">
+                        Siap memindahkan workload komputasi Anda ke Google Cloud? Mitra-mitra ini dapat memandu setiap tahap prosesnya —
+                        mulai dari penilaian awal dan perencanaan hingga eksekusi migrasi.
+                    </p>
+                </div>
+                <div x-show="ptab==='migrasi'" x-cloak class="text-[15px] text-greyteks leading-relaxed">
+                    Daftar partner yang membantu proses eksekusi migrasi, termasuk pemindahan data dan validasi pasca-migrasi, akan tampil di sini.
+                </div>
+            </section>
+
+            <!-- FAQ -->
+            <section id="faq" class="scroll-mt-28 pb-16" x-data="{ items: [true, false, false], expandAll(){ const allOpen = this.items.every(i=>i); this.items = this.items.map(()=>!allOpen); } }">
+                <p class="text-sm tracking-wide text-greyteks mb-4">FAQ</p>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+                    <div>
+                        <h3 class="text-2xl font-medium text-black leading-snug mb-2">Cara lain untuk mendapatkan jawaban atas pertanyaan Anda</h3>
+                    </div>
+
+                    <div class="lg:col-span-2">
+                        <div class="flex items-center justify-between mb-2">
+                            <p class="text-sm font-medium text-greyteks">FAQ</p>
+                            <button @click="expandAll()" class="text-blue text-sm font-medium flex items-center gap-1 hover:underline">
+                                Luaskan semua
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4"><path fill-rule="evenodd" d="M10 3a.75.75 0 01.75.75v4.5h4.5a.75.75 0 010 1.5h-4.5v4.5a.75.75 0 01-1.5 0v-4.5h-4.5a.75.75 0 010-1.5h4.5v-4.5A.75.75 0 0110 3z" clip-rule="evenodd" /></svg>
+                            </button>
+                        </div>
+                        <div class="divide-y divide-gray-200 border-t border-gray-200">
+
+                            <div class="py-5">
+                                <button @click="items[0] = !items[0]" class="w-full flex items-center justify-between text-left">
+                                    <span class="text-lg font-medium text-black">Apa itu Compute Engine? Apa kegunaannya?</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5 shrink-0 transition-transform" :class="items[0] ? 'rotate-180' : ''"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" /></svg>
+                                </button>
+                                <div x-show="items[0]" class="text-[15px] text-greyteks leading-relaxed mt-4">
+                                    Compute Engine adalah layanan Infrastructure as a Service yang menyediakan virtual machine yang fleksibel dan dikelola sendiri di atas infrastruktur Google. Layanan ini mendukung VM berbasis Linux maupun Windows, opsi penyimpanan lokal maupun tahan lama, serta API berbasis REST untuk konfigurasi dan kontrol, dan dapat diintegrasikan dengan layanan Google Cloud lain seperti Cloud Storage, App Engine, dan BigQuery.
+                                </div>
+                            </div>
+
+                            <div class="py-5">
+                                <button @click="items[1] = !items[1]" class="w-full flex items-center justify-between text-left">
+                                    <span class="text-lg font-medium text-black">Apa yang dimaksud dengan CPU virtual di Compute Engine?</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5 shrink-0 transition-transform" :class="items[1] ? 'rotate-180' : ''"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" /></svg>
+                                </button>
+                                <div x-show="items[1]" class="text-[15px] text-greyteks leading-relaxed mt-4">
+                                    CPU virtual (vCPU) merepresentasikan satu thread perangkat keras pada mesin fisik yang dialokasikan untuk instance VM Anda, dan menjadi satuan yang dipakai untuk menentukan ukuran serta harga sebuah mesin.
+                                </div>
+                            </div>
+
+                            <div class="py-5">
+                                <button @click="items[2] = !items[2]" class="w-full flex items-center justify-between text-left">
+                                    <span class="text-lg font-medium text-black">Bagaimana cara memilih region dan zona yang tepat?</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5 shrink-0 transition-transform" :class="items[2] ? 'rotate-180' : ''"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" /></svg>
+                                </button>
+                                <div x-show="items[2]" class="text-[15px] text-greyteks leading-relaxed mt-4">
+                                    Pilih region yang paling dekat dengan lokasi pengguna Anda untuk mengurangi latensi, dan sebarkan instance ke beberapa zona dalam region yang sama supaya aplikasi tetap berjalan meski satu zona mengalami gangguan.
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+</body>
+</html>

@@ -1,0 +1,1395 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compute Engine - Clone</title>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.store('site', {
+                lang: 'id',
+                t(id, en) { return this.lang === 'en' ? en : id; }
+            });
+        });
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        white: '#FFFFFF',
+                        whitegrey: '#f8f9fa',
+                        green: '#1e8e3e',
+                        blue: '#1a73e8',
+                        text: '#202124',
+                        bg: '#f8f9fa',
+                        grey: '#e6f4ea',
+                        greyteks: '#5F6368',
+                        black: '#202124',
+                        bluedark: '#1A73E8',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        [x-cloak] { display: none !important; }
+        html { scroll-behavior: smooth; }
+    </style>
+</head>
+
+<body class="bg-white" x-data="{ searchOpen: false, menuOpen: false, activeTab: {} }">
+<!-- HEADER UTAMA (GARIS TENGAH SUDAH DIHAPUS) -->
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-40">
+        <!-- BARIS 1: NAVIGASI UTAMA & FITUR ATAS -->
+        <div class="px-6 lg:px-8 bg-white">
+            <div class="flex items-center justify-between h-16">
+
+                <!-- KIRI: Logo & Menu Utama -->
+                <div class="flex items-center space-x-6">
+                    <a href="#overview" class="flex items-center gap-3">
+                        <img src="img/logogooglecloude.png" alt="Google Cloud" class="h-7 w-auto object-contain">
+                    </a>
+
+                    <nav class="hidden lg:flex items-center space-x-6 text-sm font-normal text-gray-600 h-16" x-data="{ navTab: 'produk' }">
+                        <a href="https://cloud.google.com" target="_blank" @click="navTab='ringkasan'"
+                           :class="navTab==='ringkasan' ? 'text-black font-medium border-blue-600' : 'border-transparent hover:text-black'"
+                           class="h-full flex items-center pt-0.5 border-b-2 transition-all duration-300 ease-in-out" x-text="$store.site.t('Ringkasan','Overview')"></a>
+                        <a href="https://cloud.google.com/solutions" target="_blank" @click="navTab='solusi'"
+                           :class="navTab==='solusi' ? 'text-black font-medium border-blue-600' : 'border-transparent hover:text-black'"
+                           class="h-full flex items-center pt-0.5 border-b-2 transition-all duration-300 ease-in-out" x-text="$store.site.t('Solusi','Solutions')"></a>
+                        <a href="https://cloud.google.com/products" target="_blank" @click="navTab='produk'"
+                           :class="navTab==='produk' ? 'text-black font-medium border-blue-600' : 'border-transparent hover:text-black'"
+                           class="h-full flex items-center pt-0.5 border-b-2 transition-all duration-300 ease-in-out" x-text="$store.site.t('Produk','Products')"></a>
+                        <a href="https://cloud.google.com/pricing" target="_blank" @click="navTab='harga'"
+                           :class="navTab==='harga' ? 'text-black font-medium border-blue-600' : 'border-transparent hover:text-black'"
+                           class="h-full flex items-center pt-0.5 border-b-2 transition-all duration-300 ease-in-out" x-text="$store.site.t('Harga','Pricing')"></a>
+                        <a href="https://cloud.google.com/docs" target="_blank" @click="navTab='resource'"
+                           :class="navTab==='resource' ? 'text-black font-medium border-blue-600' : 'border-transparent hover:text-black'"
+                           class="h-full flex items-center pt-0.5 border-b-2 transition-all duration-300 ease-in-out" x-text="$store.site.t('Resource','Resources')"></a>
+                    </nav>
+                </div>
+
+                <!-- KANAN: Cari, Dokumen, Dukungan, Konsol, Profil -->
+                <div class="hidden md:flex items-center space-x-6 text-sm font-normal text-gray-600">
+
+                    <!-- AREA SEARCH BAR -->
+                    <div class="relative flex items-center min-w-[220px] justify-end">
+                        <!-- Tombol Pemicu (Ditambahkan @click.stop) -->
+                        <button type="button"
+                                aria-label="buka pencarian"
+                                x-show="!searchOpen"
+                                @click.stop="searchOpen = true; $nextTick(() => $refs.searchInput.focus())"
+                                class="p-2 text-gray-600 hover:bg-slate-100 hover:text-black rounded-full transition-colors cursor-pointer">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <circle cx="11" cy="11" r="7"></circle>
+                                <path stroke-linecap="round" d="m20 20-3.5-3.5"></path>
+                            </svg>
+                        </button>
+
+                        <!-- Input Pencarian -->
+                        <div x-show="searchOpen"
+                            x-cloak
+                            x-transition:enter="transition duration-200"
+                            x-transition:enter-start="opacity-0"
+                            x-transition:enter-end="opacity-100"
+                            @click.outside="searchOpen = false"
+                            @keydown.escape.window="searchOpen = false"
+                            class="relative w-full">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <circle cx="11" cy="11" r="7"></circle>
+                                <path stroke-linecap="round" d="m20 20-3.5-3.5"></path>
+                            </svg>
+                            <input x-ref="searchInput" 
+                                type="text" 
+                                placeholder="Search" 
+                                class="w-full rounded-lg border border-slate-200 bg-white py-2 pl-10 pr-3 text-sm text-slate-900 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 focus:outline-none">
+                        </div>
+                    </div>
+
+                    <!-- Dokumen, Dukungan, Konsol -->
+                    <div class="hidden lg:flex items-center space-x-6 text-sm font-normal text-gray-600 h-16">
+                        <a href="https://cloud.google.com/docs" target="_blank" class="hover:text-black transition" x-text="$store.site.t('Dokumen','Docs')"></a>
+                        <a href="https://cloud.google.com/support" target="_blank" class="hover:text-black transition" x-text="$store.site.t('Dukungan','Support')"></a>
+                        <a href="https://console.cloud.google.com" target="_blank" class="text-blue-600 font-normal hover:underline" x-text="$store.site.t('Konsol','Console')"></a>
+                    </div>
+
+                    <!-- DROPDOWN TITIK TIGA -->
+                    <div class="relative">
+                        <button @click="menuOpen = !menuOpen"
+                                aria-label="Google Developer Program"
+                                class="p-2 border border-gray-300 text-gray-600 rounded-full hover:bg-gray-100 transition shrink-0 focus:outline-none cursor-pointer">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 12.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 18.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Z" />
+                            </svg>
+                        </button>
+
+                        <!-- POPOVER CARD -->
+                        <div x-show="menuOpen"
+                            x-cloak
+                            x-transition
+                            @click.outside="menuOpen = false"
+                            class="absolute right-0 mt-3 w-[320px] sm:w-[360px] bg-white rounded-2xl shadow-2xl border border-gray-200 p-6 z-50 text-left">
+                            <div class="flex items-center gap-1 mb-4">
+                                <span class="text-xl font-medium tracking-tight">
+                                    <span class="text-[#4285F4]">G</span><span class="text-[#EA4335]">o</span><span class="text-[#FBBC05]">o</span><span class="text-[#4285F4]">g</span><span class="text-[#34A853]">l</span><span class="text-[#EA4335]">e</span>
+                                </span>
+                                <span class="text-base font-normal text-gray-600">for Developers</span>
+                            </div>
+                            <h3 class="text-xl font-medium text-gray-900 text-center leading-snug mb-4">
+                                Bergabunglah dengan Program Google Developer
+                            </h3>
+                            <p class="text-gray-600 text-[15px] leading-relaxed text-left mb-8">
+                                Dapatkan akses ke alat AI, pelatihan eksklusif, dan akses orang dalam. Bergabunglah sekarang dan percepat perjalanan developer Anda.
+                            </p>
+
+                            <!-- TOMBOL AKSI -->
+                            <div class="flex items-center justify-end gap-2">
+                                <!-- DISMISS: Menutup popover saja -->
+                                <button @click="menuOpen = false" 
+                                        type="button" 
+                                        class="px-4 py-2 text-[#1a73e8] hover:bg-slate-100 font-medium text-xs rounded-full transition cursor-pointer border-none bg-transparent">
+                                    Dismiss
+                                </button>
+                                 <!-- START: Membuka tab baru ke Google Developer Profile & Menutup popover -->
+                                    <a href="https://me.developers.google.com/u/me" 
+                                    target="_blank"
+                                    @click="menuOpen = false" 
+                                    class="px-5 py-2 bg-[#1a73e8] hover:bg-[#1557b0] text-white font-medium text-xs rounded-full transition shadow-xs cursor-pointer inline-block no-underline">
+                                        Start
+                                    </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Avatar Profil -->
+                    <div class="w-8 h-8 rounded-full bg-[#8d6e63] text-white flex items-center justify-center font-normal text-base shrink-0 cursor-pointer select-none">
+                        S
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BARIS 2: SUB-HEADER -->
+        <div class="px-6 lg:px-8 py-2 flex items-center justify-between">
+            <h1 class="text-xl font-normal text-gray-700">Compute Engine</h1>
+            <div class="flex items-center gap-3">
+                <!-- TOMBOL 1: HUBUNGI KAMI -->
+                <a href="https://cloud.google.com/contact/form" target="_blank" class="border border-gray-300 text-black text-sm font-medium px-4 py-2 rounded-full hover:bg-gray-50 transition cursor-pointer" x-text="$store.site.t('Hubungi kami','Contact us')">
+                </a>
+                
+                <!-- TOMBOL 2: MULAI GRATIS (MENGARAH KE FORM FREE TRIAL) -->
+                <a href="https://console.cloud.google.com/freetrial" target="_blank" class="bg-[#1a73e8] text-white text-sm font-medium px-5 py-2 rounded-full hover:bg-blue-700 transition cursor-pointer" x-text="$store.site.t('Mulai gratis','Get started for free')">
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- BODY: SIDEBAR + KONTEN -->
+    <div class="flex max-w-[1900px] mx-auto bg-white" x-data="{ active: 'overview' }">
+
+        <!-- SIDEBAR -->
+        <aside class="hidden md:flex md:flex-col w-64 shrink-0 border-r border-gray-200 bg-white sticky top-[97px] h-[calc(100vh-97px)]">
+            <nav class="text-[15px] text-greyteks overflow-y-auto flex-1 py-4 pr-3">
+                
+                <a href="#overview" @click="active='overview'"
+                   :class="active==='overview' ? 'bg-[#e8f0fe] text-[#1a73e8] font-medium' : 'hover:bg-gray-50 text-gray-700'"
+                   class="block text-left px-6 py-2 rounded-r-full transition-all duration-300 ease-in-out">Compute Engine</a>
+                   
+                <a href="#fitur" @click="active='fitur'"
+                   :class="active==='fitur' ? 'bg-[#e8f0fe] text-[#1a73e8] font-medium' : 'hover:bg-gray-50 text-gray-700'"
+                   class="block text-left px-6 py-2 rounded-r-full transition-all duration-300 ease-in-out">Fitur</a>
+                   
+                <a href="#opsi" @click="active='opsi'"
+                   :class="active==='opsi' ? 'bg-[#e8f0fe] text-[#1a73e8] font-medium' : 'hover:bg-gray-50 text-gray-700'"
+                   class="block text-left px-6 py-2 rounded-r-full transition-all duration-300 ease-in-out">Opsi</a>
+
+                <!-- ITEM PIL AKTIFF -->
+                <div class="px-3 my-1">
+                    <a href="#cara-kerja" @click="active='cara-kerja'"
+                       :class="active==='cara-kerja' ? 'bg-[#e8f0fe] text-[#1a73e8] font-medium' : 'hover:bg-gray-100 text-gray-700'"
+                       class="block text-left px-5 py-2.5 rounded-full transition-all duration-300 ease-in-out">
+                        Cara Kerjanya
+                    </a>
+                </div>
+
+                <!-- GRUP PENGGUNAAN UMUM -->
+                <div class="mt-4 px-6">
+                    <p class="text-[15px] font-normal text-gray-700 mb-3">Penggunaan Umum</p>
+                    
+                    <div class="border-l-2 border-gray-200 ml-1 pl-4 space-y-4 text-[14px]">
+                        <a href="#vm-pertama" @click="active='vm-pertama'"
+                           :class="active==='vm-pertama' ? 'text-[#1a73e8] font-medium' : 'text-gray-700 hover:text-black'"
+                           class="block text-left leading-snug transition-all duration-300 ease-in-out">
+                            Membuat VM pertama Anda
+                        </a>
+                        <a href="#migrasi" @click="active='migrasi'"
+                           :class="active==='migrasi' ? 'text-[#1a73e8] font-medium' : 'text-gray-700 hover:text-black'"
+                           class="block text-left leading-snug transition-all duration-300 ease-in-out">
+                            Memigrasikan aplikasi perusahaan
+                        </a>
+                        <a href="#backup" @click="active='backup'"
+                           :class="active==='backup' ? 'text-[#1a73e8] font-medium' : 'text-gray-700 hover:text-black'"
+                           class="block text-left leading-snug transition-all duration-300 ease-in-out">
+                            Mencadangkan dan memulihkan aplikasi Anda
+                        </a>
+                        <a href="#container" @click="active='container'"
+                           :class="active==='container' ? 'text-[#1a73e8] font-medium' : 'text-gray-700 hover:text-black'"
+                           class="block text-left leading-snug transition-all duration-300 ease-in-out">
+                            Menjalankan aplikasi modern berbasis
+                        </a>
+                        <a href="#ai" @click="active='ai'"
+                           :class="active==='ai' ? 'text-[#1a73e8] font-medium' : 'text-gray-700 hover:text-black'"
+                           class="block text-left leading-snug transition-all duration-300 ease-in-out">
+                            Infrastruktur untuk workload AI
+                        </a>
+                    </div>
+                </div>
+
+                <!-- ITEM BAWAH -->
+                <div class="mt-4">
+                    <a href="#harga" @click="active='harga'"
+                       :class="active==='harga' ? 'bg-[#e8f0fe] text-[#1a73e8] font-medium' : 'hover:bg-gray-50 text-gray-700'"
+                       class="block text-left px-6 py-2 rounded-r-full transition-all duration-300 ease-in-out">Harga</a>
+                    <a href="#kasus-bisnis" @click="active='kasus-bisnis'"
+                       :class="active==='kasus-bisnis' ? 'bg-[#e8f0fe] text-[#1a73e8] font-medium' : 'hover:bg-gray-50 text-gray-700'"
+                       class="block text-left px-6 py-2 rounded-r-full transition-all duration-300 ease-in-out">Kasus Bisnis</a>
+                    <a href="#partner" @click="active='partner'"
+                       :class="active==='partner' ? 'bg-[#e8f0fe] text-[#1a73e8] font-medium' : 'hover:bg-gray-50 text-gray-700'"
+                       class="block text-left px-6 py-2 rounded-r-full transition-all duration-300 ease-in-out">Partner &amp; Integrasi</a>
+                    <a href="#faq" @click="active='faq'"
+                       :class="active==='faq' ? 'bg-[#e8f0fe] text-[#1a73e8] font-medium' : 'hover:bg-gray-50 text-gray-700'"
+                       class="block text-left px-6 py-2 rounded-r-full transition-all duration-300 ease-in-out">FAQ</a>
+                </div>
+
+                <!-- LINK BAWAH (bagian dari nav yang discroll, bukan menempel) -->
+                <div class="border-t border-gray-200 mt-4 pt-3 text-sm">
+                    <a href="https://cloud.google.com/release-notes" target="_blank" class="flex items-center gap-3 px-6 py-2 text-blue hover:bg-gray-50 transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-5 h-5 shrink-0">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6M9 8h1m-4 12h12a2 2 0 002-2V6a2 2 0 00-2-2H8L4 8v10a2 2 0 002 2z"/>
+                        </svg>
+                        Catatan rilis
+                    </a>
+                    <a href="https://cloud.google.com/docs/get-started" target="_blank" class="flex items-center gap-3 px-6 py-2 text-blue hover:bg-gray-50 transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-5 h-5 shrink-0">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422A12.083 12.083 0 0121 14.5V19M12 14l-6.16-3.422A12.083 12.083 0 003 14.5V19"/>
+                        </svg>
+                        Panduan dan referensi
+                    </a>
+                    <a href="https://cloud.google.com/architecture" target="_blank" class="flex items-center gap-3 px-6 py-2 text-blue hover:bg-gray-50 transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-5 h-5 shrink-0">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 2l3.5 6.5L22 9.3l-5 4.6L18.2 21 12 17.6 5.8 21 7 13.9l-5-4.6 6.5-.8L12 2z"/>
+                        </svg>
+                        Arsitektur referensi
+                    </a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="flex-1 min-w-0 px-6 lg:px-8 pt-3 pb-12 space-y-12">
+
+            <section id="overview" class="scroll-mt-28">
+                <div class="bg-grey border border-green/20 rounded-lg px-5 py-3 flex items-center justify-between mb-8">
+                    <p class="text-sm text-green">Dapatkan rasio harga-performa 2x lebih baik dengan VM N4A berbasis Axion, yang kini tersedia secara umum.</p>
+                    <button class="w-8 h-8 rounded-full bg-green text-white flex items-center justify-center shrink-0 ml-4 hover:bg-green/90 active:scale-95 transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 9H3a1 1 0 110-2h9.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                    <div class="lg:col-span-7">
+                        <p class="text-base text-gray-600 mb-2 font-normal">Compute Engine</p>
+                        <h1 class="text-[38px] font-bold text-[#202124] leading-[1.2] tracking-tight mb-4" x-text="$store.site.t('Virtual machine untuk workload apa pun','Virtual machines for any workload')">
+                        </h1>
+                        <p class="text-[16px] text-[#5f6368] leading-relaxed mb-6" x-text="$store.site.t('Jalankan VM di infrastruktur cloud berperforma tinggi dan andal. Pilih dari jenis mesin kustom atau preset untuk server web, database, dan aplikasi yang mendukung agen Anda.','Run VMs on reliable, high-performance cloud infrastructure. Choose from custom or preset machine types for web servers, databases, and agent-powered applications.')">
+                        </p>
+
+                        <div class="flex items-center gap-3">
+                            <a href="https://console.cloud.google.com" target="_blank" class="inline-flex items-center justify-center bg-[#1a73e8] hover:bg-[#1557b0] active:scale-95 text-white px-6 py-2.5 rounded-full text-sm font-medium transition cursor-pointer shadow-sm" x-text="$store.site.t('Coba di konsol','Try it in the console')">
+                            </a>
+                            <a href="https://cloud.google.com/contact/form" target="_blank" class="border border-gray-300 text-[#1a73e8] hover:bg-gray-50 text-sm font-medium px-6 py-2.5 rounded-full transition cursor-pointer" x-text="$store.site.t('Hubungi bagian penjualan','Contact sales')">
+                             </a>
+                        </div>
+                    </div>
+
+
+                    <div class="lg:col-span-5 bg-[#f8f9fa] rounded-2xl p-6 border border-gray-100"
+                        x-data="{ 
+                            videoOpen: false, 
+                            videoId: 'QZ8PmZjF9vw' 
+                        }">
+                    
+                        <p class="text-base font-medium text-[#202124] mb-4">Highlight produk</p>
+                        
+                        <ul class="space-y-4 text-[14px] text-[#202124]">
+                            <li>
+                                <a href="#vm-pertama" class="flex items-start gap-3 hover:text-[#1a73e8] transition group">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-gray-400 group-hover:text-[#1a73e8] shrink-0 mt-0.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="m9 12.75 3 3m0 0 3-3m-3 3v-7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                    </svg>
+                                    <span class="leading-snug">Cara memilih dan men-deploy VM pertama Anda</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#fitur" class="flex items-start gap-3 hover:text-[#1a73e8] transition group">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-gray-400 group-hover:text-[#1a73e8] shrink-0 mt-0.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="m9 12.75 3 3m0 0 3-3m-3 3v-7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                    </svg>
+                                    <span class="leading-snug">Mengenkripsi data sensitif dengan Confidential VMs</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#opsi" class="flex items-start gap-3 hover:text-[#1a73e8] transition group">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-gray-400 group-hover:text-[#1a73e8] shrink-0 mt-0.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="m9 12.75 3 3m0 0 3-3m-3 3v-7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                    </svg>
+                                    <span class="leading-snug">Sesuaikan VM untuk performa, biaya, dan lain-lain</span>
+                                </a>
+                            </li>
+                        </ul>
+
+                    <div class="h-[3px] bg-gradient-to-r from-[#34a853] via-[#4285f4] to-[#1a73e8] my-5 rounded-full"></div>
+
+                    <!-- TOMBOL PEMBUKA VIDEO -->
+                      <button type="button" 
+                            @click="videoOpen = true" 
+                            class="flex items-center gap-3 hover:opacity-80 transition group w-full text-left cursor-pointer border-none bg-transparent p-0">
+                            <div class="w-16 h-11 bg-slate-200 border border-slate-300 rounded overflow-hidden shrink-0 flex items-center justify-center">
+                                <svg class="w-6 h-6 text-gray-500" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                            </div>
+                            <div>
+                                <p class="text-[14px] font-medium text-[#202124] leading-tight group-hover:underline">Cara memilih VM yang tepat</p>
+                                <p class="text-xs text-gray-500 mt-1">Penjelasan video 5 menit</p>
+                            </div>
+                        </button>
+
+                    <!-- MODAL POPUP VIDEO (TELEPORT KE BODY) -->
+                            <template x-teleport="body">
+                                <div x-show="videoOpen"
+                                    x-cloak
+                                    x-transition.opacity.duration.200ms
+                                    @keydown.escape.window="videoOpen = false"
+                                    class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 backdrop-blur-xs">
+                                    
+                                    <div class="fixed inset-0" @click="videoOpen = false"></div>
+
+                                    <div class="bg-black rounded-2xl overflow-hidden w-full max-w-4xl shadow-2xl relative border border-gray-800 z-10"
+                                        @click.outside="videoOpen = false">
+                                        
+                                        <button type="button" 
+                                                @click="videoOpen = false" 
+                                                class="absolute top-3 right-3 z-20 bg-black/60 hover:bg-black/90 text-white rounded-full p-2 transition cursor-pointer">
+                                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                            </svg>
+                                        </button>
+                                        
+                                        <!-- IFRAME YOUTUBE -->
+                                        <div class="relative pt-[56.25%] w-full bg-black">
+                                            <iframe :src="videoOpen ? 'https://www.youtube.com/embed/' + videoId + '?autoplay=1' : ''" 
+                                                    class="absolute top-0 left-0 w-full h-full" 
+                                                    title="Choosing the right VM" 
+                                                    frameborder="0" 
+                                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                                                    referrerpolicy="strict-origin-when-cross-origin"
+                                                    allowfullscreen>
+                                            </iframe>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+            </section>
+
+            <!-- SEKSI FITUR COMPUTE ENGINE -->
+            <section id="fitur" class="scroll-mt-28" x-data="{ fiturExpanded: false }">
+                <div class="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-6" x-text="$store.site.t('FITUR','FEATURES')"></div>
+
+                <div class="space-y-10 divide-y divide-gray-200">
+                    <!-- 1. Konfigurasi kustom dan preset -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 pt-2">
+                        <div class="lg:col-span-1">
+                            <h3 class="font-medium text-gray-900 text-base">Konfigurasi kustom dan preset</h3>
+                        </div>
+                        <div class="lg:col-span-2 space-y-4 text-sm text-gray-700 leading-relaxed">
+                            <p>
+                                Deploy aplikasi dalam hitungan menit dengan sampel bawaan yang disebut <a href="https://cloud.google.com/solutions" target="_blank" class="text-[#1a73e8] hover:underline">Solusi Praktis</a>. Buat <a href="https://cloud.google.com/solutions/dynamic-websites" target="_blank" class="text-[#1a73e8] hover:underline">situs dinamis</a>, <a href="https://cloud.google.com/load-balancing/docs/https" target="_blank" class="text-[#1a73e8] hover:underline">VM dengan load balancing</a>, <a href="https://cloud.google.com/architecture/three-tiered-web-app" target="_blank" class="text-[#1a73e8] hover:underline">aplikasi web tiga tingkat</a>, atau <a href="https://cloud.google.com/solutions/ecommerce" target="_blank" class="text-[#1a73e8] hover:underline">aplikasi web e-commerce</a>.
+                            </p>
+                            <p>
+                                Pilih dari <a href="https://cloud.google.com/compute/docs/machine-resource" target="_blank" class="text-[#1a73e8] hover:underline">jenis, ukuran, dan konfigurasi mesin yang telah ditetapkan</a> untuk workload apa pun, dari aplikasi perusahaan besar hingga workload modern (seperti container) atau project AI/ML yang memerlukan GPU dan TPU.
+                            </p>
+                            <p>
+                                Untuk fleksibilitas lebih besar, buat <a href="https://cloud.google.com/compute/docs/general-purpose-machines#custom_machine_types" target="_blank" class="text-[#1a73e8] hover:underline">jenis mesin kustom</a> antara 1 hingga 96 vCPU dengan memori hingga 8,0 GB per core. Dan manfaatkan salah satu dari banyak opsi block storage, mulai dari <a href="https://cloud.google.com/compute/docs/disks" target="_blank" class="text-[#1a73e8] hover:underline">Persistent Disk</a> yang fleksibel hingga <a href="https://cloud.google.com/compute/docs/disks/local-ssd" target="_blank" class="text-[#1a73e8] hover:underline">SSD Lokal</a> berperforma tinggi dan berlatensi rendah.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 2. Keandalan terdepan di industri -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 pt-8">
+                        <div class="lg:col-span-1">
+                            <h3 class="font-medium text-gray-900 text-base">Keandalan terdepan di industri</h3>
+                        </div>
+                        <div class="lg:col-span-2 space-y-4 text-sm text-gray-700 leading-relaxed">
+                            <p>
+                                Compute Engine menawarkan <a href="https://cloud.google.com/compute/sla" target="_blank" class="text-[#1a73e8] hover:underline">SLA ketersediaan komputasi</a> instance tunggal terbaik dari penyedia cloud mana pun: ketersediaan 99,95% untuk VM yang dioptimalkan untuk memori dan 99,9% untuk semua kelompok VM lainnya.
+                            </p>
+                            <p>
+                                Apakah periode nonaktif membuat Anda terjaga di malam hari? Pertahankan kontinuitas workload selama peristiwa yang direncanakan dan tidak direncanakan dengan <a href="https://cloud.google.com/compute/docs/instances/live-migration" target="_blank" class="text-[#1a73e8] hover:underline">migrasi langsung</a>. Saat VM berhenti berfungsi, Compute Engine akan melakukan migrasi langsung ke host lain di zona yang sama.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 3. Otomatisasi dan rekomendasi -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 pt-8">
+                        <div class="lg:col-span-1">
+                            <h3 class="font-medium text-gray-900 text-base">Otomatisasi dan rekomendasi untuk efisiensi resource</h3>
+                        </div>
+                        <div class="lg:col-span-2 space-y-4 text-sm text-gray-700 leading-relaxed">
+                            <p>
+                                Menambahkan VM secara otomatis untuk menangani beban puncak dan mengganti instance berperforma buruk dengan <a href="https://cloud.google.com/compute/docs/instance-groups" target="_blank" class="text-[#1a73e8] hover:underline">grup instance terkelola</a>.
+                            </p>
+                            <p>
+                                Sesuaikan resource Anda secara manual menggunakan data historis dengan <a href="https://cloud.google.com/compute/docs/instances/apply-constructive-recommendations" target="_blank" class="text-[#1a73e8] hover:underline">rekomendasi penyesuaian ukuran</a>, atau jaminan kapasitas untuk lonjakan permintaan yang direncanakan dengan <a href="https://cloud.google.com/compute/docs/instances/reservations-overview" target="_blank" class="text-[#1a73e8] hover:underline">pemesanan untuk masa mendatang</a>.
+                            </p>
+                            <p>
+                                Semua instance komputasi terbaru kami (termasuk <a href="https://cloud.google.com/compute/docs/general-purpose-machines#c4a_machine_types" target="_blank" class="text-[#1a73e8] hover:underline">C4A</a>, <a href="https://cloud.google.com/compute/docs/general-purpose-machines#c4_machine_types" target="_blank" class="text-[#1a73e8] hover:underline">C4</a>, <a href="https://cloud.google.com/compute/docs/general-purpose-machines#c4d_machine_types" target="_blank" class="text-[#1a73e8] hover:underline">C4D</a>, <a href="https://cloud.google.com/compute/docs/general-purpose-machines#n4_machine_types" target="_blank" class="text-[#1a73e8] hover:underline">N4</a>, <a href="https://cloud.google.com/compute/docs/general-purpose-machines#c3d_machine_types" target="_blank" class="text-[#1a73e8] hover:underline">C3D</a>, <a href="https://cloud.google.com/compute/docs/memory-optimized-machines#x4_machine_types" target="_blank" class="text-[#1a73e8] hover:underline">X4</a>, dan <a href="https://cloud.google.com/compute/docs/storage-optimized-machines#z3_machine_types" target="_blank" class="text-[#1a73e8] hover:underline">Z3</a>) berjalan di <a href="https://cloud.google.com/blog/products/infrastructure/introducing-google-cloud-titanium" target="_blank" class="text-[#1a73e8] hover:underline">Titanium</a>, sebuah sistem yang terdiri dari mikrokontroler yang dibuat khusus dan offload penyebaran skala bertingkat untuk meningkatkan performa infrastruktur, pengelolaan siklus proses, dan keamanan Anda.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 4. Harga dan diskon yang transparan -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 pt-8">
+                        <div class="lg:col-span-1">
+                            <h3 class="font-medium text-gray-900 text-base">Harga dan diskon yang transparan</h3>
+                        </div>
+                        <div class="lg:col-span-2 space-y-4 text-sm text-gray-700 leading-relaxed">
+                            <p>
+                                Baca panduan <a href="https://cloud.google.com/compute/all-pricing" target="_blank" class="text-[#1a73e8] hover:underline">harga mendetail</a> untuk mengetahui jenis atau konfigurasi VM apa pun, atau gunakan <a href="https://cloud.google.com/products/calculator" target="_blank" class="text-[#1a73e8] hover:underline">kalkulator harga</a> kami untuk mendapatkan estimasi yang dipersonalisasi.
+                            </p>
+                            <p>
+                                Untuk menghemat tugas batch dan workload yang fault-tolerant, gunakan <a href="https://cloud.google.com/compute/docs/instances/spot" target="_blank" class="text-[#1a73e8] hover:underline">Spot VM</a> untuk mengurangi tagihan Anda dari 60-91%.
+                            </p>
+                            <p>
+                                Dapatkan diskon otomatis untuk <a href="https://cloud.google.com/compute/docs/sustained-use-discounts" target="_blank" class="text-[#1a73e8] hover:underline">penggunaan berkelanjutan</a>, atau diskon hingga 70% jika Anda mendaftar <a href="https://cloud.google.com/compute/docs/committed-use-discounts" target="_blank" class="text-[#1a73e8] hover:underline">diskon abonemen</a>.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 5. Kontrol dan konfigurasi keamanan -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 pt-8">
+                        <div class="lg:col-span-1">
+                            <h3 class="font-medium text-gray-900 text-base">Kontrol dan konfigurasi keamanan</h3>
+                        </div>
+                        <div class="lg:col-span-2 space-y-4 text-sm text-gray-700 leading-relaxed">
+                            <p>
+                                Enkripsi data aktif dan saat sedang diproses dengan <a href="https://cloud.google.com/confidential-computing" target="_blank" class="text-[#1a73e8] hover:underline">Confidential VMs</a>.
+                            </p>
+                            <p>
+                                Bertahan dari rootkit dan bootkit dengan <a href="https://cloud.google.com/shielded-vm" target="_blank" class="text-[#1a73e8] hover:underline">Shielded VM</a>.
+                            </p>
+                            <p>
+                                Memenuhi standar kepatuhan yang ketat untuk residensi, kedaulatan data, akses, dan enkripsi dengan <a href="https://docs.cloud.google.com/assured-workloads/docs/overview" target="_blank" class="text-[#1a73e8] hover:underline">Assured Workloads</a>.
+                            </p>
+                        </div>
+                    </div>
+                    <!-- 6-7. Fitur tambahan (muncul saat "Lihat semua fitur" diklik) -->
+                    <div x-show="fiturExpanded" x-cloak x-transition class="grid grid-cols-1 lg:grid-cols-3 gap-6 pt-8">
+                        <div class="lg:col-span-1">
+                            <h3 class="font-medium text-gray-900 text-base">Manajemen dan observability</h3>
+                        </div>
+                        <div class="lg:col-span-2 space-y-4 text-sm text-gray-700 leading-relaxed">
+                            <p>
+                                Pantau kesehatan dan performa VM secara real-time dengan <a href="https://cloud.google.com/monitoring" target="_blank" class="text-[#1a73e8] hover:underline">Cloud Monitoring</a>, dan telusuri log secara terpusat dengan <a href="https://cloud.google.com/logging" target="_blank" class="text-[#1a73e8] hover:underline">Cloud Logging</a>.
+                            </p>
+                            <p>
+                                Kelola infrastruktur sebagai kode menggunakan <a href="https://cloud.google.com/docs/terraform" target="_blank" class="text-[#1a73e8] hover:underline">Terraform</a> atau <a href="https://cloud.google.com/deployment-manager/docs" target="_blank" class="text-[#1a73e8] hover:underline">Deployment Manager</a> untuk provisioning yang konsisten dan berulang.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div x-show="fiturExpanded" x-cloak x-transition class="grid grid-cols-1 lg:grid-cols-3 gap-6 pt-8">
+                        <div class="lg:col-span-1">
+                            <h3 class="font-medium text-gray-900 text-base">Dukungan dan SLA yang komprehensif</h3>
+                        </div>
+                        <div class="lg:col-span-2 space-y-4 text-sm text-gray-700 leading-relaxed">
+                            <p>
+                                Dapatkan dukungan teknis 24/7 melalui paket <a href="https://cloud.google.com/support" target="_blank" class="text-[#1a73e8] hover:underline">Google Cloud Support</a> yang disesuaikan dengan skala bisnis Anda.
+                            </p>
+                            <p>
+                                Andalkan <a href="https://cloud.google.com/compute/sla" target="_blank" class="text-[#1a73e8] hover:underline">perjanjian tingkat layanan (SLA)</a> yang jelas untuk ketersediaan dan performa di setiap kelompok mesin.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tombol Lihat Semua Fitur -->
+                <div class="flex justify-center mt-10">
+                    <button type="button" @click="fiturExpanded = !fiturExpanded" class="inline-flex items-center gap-2 px-6 py-2 border border-gray-300 rounded-full text-sm font-medium text-[#1a73e8] hover:bg-blue-50 transition cursor-pointer">
+                        <span x-text="fiturExpanded ? 'Sembunyikan fitur' : 'Lihat semua fitur'"></span>
+                        <svg class="w-4 h-4 transition-transform duration-300" :class="fiturExpanded ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+                </div>
+            </section>
+
+            <!-- OPSI (Pilih VM yang tepat) -->
+            <section id="opsi" class="scroll-mt-28">
+                 <h2 class="text-2xl font-medium text-[#202124] mb-6" x-text="$store.site.t('Pilih VM yang tepat','Choose the right VM')"></h2>
+
+            <!-- CONTAINER TABEL -->
+            <div class="border border-gray-200 rounded-2xl overflow-hidden bg-white shadow-xs">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse min-w-[700px]">
+                        <thead>
+                            <tr class="border-b border-gray-200 bg-[#f8f9fa] text-xs font-semibold text-gray-500">
+                                <th class="py-4 px-6 w-1/4">Pengoptimalan</th>
+                                <th class="py-4 px-6 w-1/2">Beban kerja</th>
+                                <th class="py-4 px-6 w-1/4">Rekomendasi kami</th>
+                            </tr>
+                        </thead>
+
+                        <tbody class="divide-y divide-gray-200 text-sm">
+
+                            <!-- Efisien -->
+                            <tr class="hover:bg-gray-50/50">
+                                <td class="py-6 px-6 align-top">
+                                    <p class="font-bold text-gray-900">Efisien.</p>
+                                    <p class="text-gray-600 mt-1">Biaya per core terendah.</p>
+                                </td>
+                                <td class="py-6 px-6 align-top">
+                                    <ul class="list-disc list-inside space-y-1 text-gray-700">
+                                        <li>Server web dan aplikasi (traffic rendah)</li>
+                                        <li>Lingkungan pengembangan dan pengujian</li>
+                                        <li>Microservice dalam container</li>
+                                        <li>Desktop virtual</li>
+                                    </ul>
+                                </td>
+                                <td class="py-6 px-6 align-top">
+                                    <p class="text-gray-700">E-Series tujuan umum</p>
+                                    <a href="https://cloud.google.com/compute/docs/general-purpose-machines#e2_machine_types" target="_blank" class="text-[#1a73e8] hover:underline font-medium inline-block mt-1">E2</a>
+                                </td>
+                            </tr>
+
+                            <!-- Fleksibel -->
+                            <tr class="hover:bg-gray-50/50">
+                                <td class="py-6 px-6 align-top">
+                                    <p class="font-bold text-gray-900">Fleksibel</p>
+                                    <p class="text-gray-600 mt-1">Rasio harga-performa terbaik untuk workload yang seimbang dan fleksibel.</p>
+                                </td>
+                                <td class="py-6 px-6 align-top">
+                                    <ul class="list-disc list-inside space-y-1 text-gray-700">
+                                        <li>Server web dan aplikasi (traffic rendah hingga sedang)</li>
+                                        <li>Microservice dalam container</li>
+                                        <li>Desktop virtual</li>
+                                        <li>Aplikasi back-office, CRM, atau BI</li>
+                                        <li>Data Pipelines</li>
+                                        <li>Database (berukuran kecil hingga sedang)</li>
+                                        <li>Perencanaan, penalaran, dan orkestrasi agentic</li>
+                                        <li>Sandbox agen yang aman untuk eksekusi kode yang tidak terpercaya</li>
+                                    </ul>
+                                </td>
+                                <td class="py-6 px-6 align-top">
+                                    <p class="text-gray-700">Seri N tujuan umum</p>
+                                    <p class="mt-1">
+                                        <a href="https://cloud.google.com/compute/docs/general-purpose-machines#n4_machine_types" target="_blank" class="text-[#1a73e8] hover:underline font-medium">N4</a>, 
+                                        <a href="https://cloud.google.com/compute/docs/general-purpose-machines#n4a_machine_types" target="_blank" class="text-[#1a73e8] hover:underline font-medium">N4A</a>, 
+                                        <a href="https://cloud.google.com/compute/docs/general-purpose-machines#n4d_machine_types" target="_blank" class="text-[#1a73e8] hover:underline font-medium">N4D</a>, 
+                                        <a href="https://cloud.google.com/compute/docs/general-purpose-machines#n2_machine_types" target="_blank" class="text-[#1a73e8] hover:underline font-medium">N2</a>, 
+                                        <a href="https://cloud.google.com/compute/docs/general-purpose-machines#n2d_machine_types" target="_blank" class="text-[#1a73e8] hover:underline font-medium">N2D</a>, dan 
+                                        <a href="https://cloud.google.com/compute/docs/general-purpose-machines#n1_machine_types" target="_blank" class="text-[#1a73e8] hover:underline font-medium">N1</a>
+                                    </p>
+                                </td>
+                            </tr>
+
+                            <!-- Performa -->
+                            <tr class="hover:bg-gray-50/50">
+                                <td class="py-6 px-6 align-top">
+                                    <p class="font-bold text-gray-900">Performa</p>
+                                    <p class="text-gray-600 mt-1">Performa terbaik dengan kemampuan lanjutan.</p>
+                                </td>
+                                <td class="py-6 px-6 align-top">
+                                    <ul class="list-disc list-inside space-y-1 text-gray-700">
+                                        <li>Server web dan aplikasi (traffic tinggi)</li>
+                                        <li>Server iklan</li>
+                                        <li>Server game</li>
+                                        <li>Analisis data</li>
+                                        <li>Database (semua ukuran)</li>
+                                        <li>Cache dalam memori</li>
+                                        <li>Media streaming dan transcoding</li>
+                                    </ul>
+                                </td>
+                                <td class="py-6 px-6 align-top">
+                                    <p class="text-gray-700">Seri C tujuan umum</p>
+                                    <p class="mt-1">
+                                        <a href="https://cloud.google.com/compute/docs/general-purpose-machines#c4_machine_types" target="_blank" class="text-[#1a73e8] hover:underline font-medium">C4</a>, 
+                                        <a href="https://cloud.google.com/compute/docs/general-purpose-machines#c4a_machine_types" target="_blank" class="text-[#1a73e8] hover:underline font-medium">C4A</a>, 
+                                        <a href="https://cloud.google.com/compute/docs/general-purpose-machines#c4d_machine_types" target="_blank" class="text-[#1a73e8] hover:underline font-medium">C4D</a>, 
+                                        <a href="https://cloud.google.com/compute/docs/general-purpose-machines#c3_machine_types" target="_blank" class="text-[#1a73e8] hover:underline font-medium">C3</a>, dan 
+                                        <a href="https://cloud.google.com/compute/docs/general-purpose-machines#c3d_machine_types" target="_blank" class="text-[#1a73e8] hover:underline font-medium">C3D</a>
+                                    </p>
+                                </td>
+                            </tr>
+
+                            <!-- Komputasi -->
+                            <tr class="hover:bg-gray-50/50">
+                                <td class="py-6 px-6 align-top">
+                                    <p class="font-bold text-gray-900">Komputasi</p>
+                                    <p class="text-gray-600 mt-1">Komputasi tertinggi per inti.</p>
+                                </td>
+                                <td class="py-6 px-6 align-top">
+                                    <ul class="list-disc list-inside space-y-1 text-gray-700">
+                                        <li>Server web dan aplikasi</li>
+                                        <li>Server game</li>
+                                        <li>Media streaming dan transcoding</li>
+                                        <li>Workload yang terikat komputasi</li>
+                                    </ul>
+                                </td>
+                                <td class="py-6 px-6 align-top">
+                                    <p class="text-gray-700">Spesialisasi Seri H</p>
+                                    <p class="mt-1">
+                                        <a href="https://cloud.google.com/compute/docs/compute-optimized-machines#h4d_machine_types" target="_blank" class="text-[#1a73e8] hover:underline font-medium">H4D</a>, dan 
+                                        <a href="https://cloud.google.com/compute/docs/compute-optimized-machines#h3_machine_types" target="_blank" class="text-[#1a73e8] hover:underline font-medium">H3</a>
+                                    </p>
+                                </td>
+                            </tr>
+
+                            <!-- Memori -->
+                            <tr class="hover:bg-gray-50/50">
+                                <td class="py-6 px-6 align-top">
+                                    <p class="font-bold text-gray-900">Memori</p>
+                                    <p class="text-gray-600 mt-1">Memori tertinggi per core.</p>
+                                </td>
+                                <td class="py-6 px-6 align-top">
+                                    <ul class="list-disc list-inside space-y-1 text-gray-700">
+                                        <li>Database (besar)</li>
+                                        <li>Cache dalam memori</li>
+                                        <li>Otomatisasi desain elektronik</li>
+                                    </ul>
+                                </td>
+                                <td class="py-6 px-6 align-top">
+                                    <p class="text-gray-700">Spesialisasi Seri M</p>
+                                    <p class="mt-1">
+                                        <a href="https://cloud.google.com/compute/docs/memory-optimized-machines#m3_machine_types" target="_blank" class="text-[#1a73e8] hover:underline font-medium">M3</a>, 
+                                        <a href="https://cloud.google.com/compute/docs/memory-optimized-machines#m4_machine_types" target="_blank" class="text-[#1a73e8] hover:underline font-medium">M4</a>, dan 
+                                        <a href="https://cloud.google.com/compute/docs/memory-optimized-machines#x4_machine_types" target="_blank" class="text-[#1a73e8] hover:underline font-medium">X4</a>
+                                    </p>
+                                </td>
+                            </tr>
+
+                            <!-- Penyimpanan -->
+                            <tr class="hover:bg-gray-50/50">
+                                <td class="py-6 px-6 align-top">
+                                    <p class="font-bold text-gray-900">Penyimpanan</p>
+                                    <p class="text-gray-600 mt-1">Penyimpanan tertinggi per inti.</p>
+                                </td>
+                                <td class="py-6 px-6 align-top">
+                                    <ul class="list-disc list-inside space-y-1 text-gray-700">
+                                        <li>Analisis data</li>
+                                        <li>Database (penyebaran skala horizontal besar)</li>
+                                    </ul>
+                                </td>
+                                <td class="py-6 px-6 align-top">
+                                    <p class="text-gray-700">Spesialisasi Z-Series</p>
+                                    <p class="mt-1">
+                                        <a href="https://cloud.google.com/compute/docs/storage-optimized-machines#z3_machine_types" target="_blank" class="text-[#1a73e8] hover:underline font-medium">Z3</a>
+                                    </p>
+                                </td>
+                            </tr>
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+                <!-- FOOTER LINK DI BAWAH TABEL -->
+                <div class="flex items-center gap-2 mt-4 text-xs sm:text-sm font-medium text-gray-700">
+                    <span class="w-2.5 h-2.5 bg-[#FBBC05] transform rotate-45 inline-block shrink-0"></span>
+                    <span>Dokumentasi:</span>
+                    <a href="https://cloud.google.com/compute/docs/machine-resource" target="_blank" class="text-[#1a73e8] hover:underline">Panduan perbandingan dan resource kelompok mesin</a>
+                </div>
+            </section>
+
+            <!-- CARA KERJANYA -->
+            <section id="cara-kerja" class="scroll-mt-28" x-data="{ ckVideoOpen: false, ckVideoId: 'igdNRUMSwm4' }">
+                <p class="text-sm tracking-wide text-greyteks mb-6" x-text="$store.site.t('CARA KERJANYA','HOW IT WORKS')"></p>
+                <div class="bg-black rounded-2xl p-8 grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                    <div>
+                        <p class="text-white text-lg leading-relaxed">
+                            Compute Engine adalah layanan komputasi dan hosting yang memungkinkan Anda membuat dan menjalankan virtual machine di infrastruktur Google, setara dengan Amazon EC2 dan Azure Virtual Machine. Compute Engine juga menawarkan skala, performa, dan nilai untuk meluncurkan cluster komputasi besar dengan mudah tanpa investasi di muka.
+                        </p>
+                        <a href="https://cloud.google.com/compute/docs/tutorials" target="_blank" class="inline-block mt-6 bg-white text-black text-[15px] font-medium px-6 py-2.5 rounded-full hover:bg-gray-100 active:scale-95 transition">Panduan: Cara memulai</a>
+                    </div>
+                    <div>
+                        <button type="button" @click="ckVideoOpen = true" class="w-full bg-whitegrey rounded-xl p-6 flex items-center justify-center gap-4 hover:opacity-90 transition cursor-pointer group relative">
+                            <template x-for="i in 3" :key="i">
+                                <div class="w-16 h-24 bg-blue rounded flex items-center justify-center text-white">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path d="M12 6a2 2 0 100-4 2 2 0 000 4zm0 8a2 2 0 100-4 2 2 0 000 4zm0 8a2 2 0 100-4 2 2 0 000 4z"/></svg>
+                                </div>
+                            </template>
+                            <span class="w-10 h-10 rounded-full bg-green text-white flex items-center justify-center shrink-0 group-hover:bg-green/90 transition">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5"><path d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
+                            </span>
+                            <span class="absolute inset-0 flex items-center justify-center">
+                                <span class="w-12 h-12 rounded-full bg-black/50 group-hover:bg-black/70 transition flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                </span>
+                            </span>
+                        </button>
+                        <p class="text-xs text-gray-500 mt-3 leading-relaxed">Ringkasan singkat tentang Compute Engine, dan bagaimana alat Google Cloud ini dapat membantu Anda memigrasikan workload dengan lancar ke Cloud</p>
+                    </div>
+                </div>
+
+                <!-- MODAL VIDEO CARA KERJANYA -->
+                <template x-teleport="body">
+                    <div x-show="ckVideoOpen"
+                        x-cloak
+                        x-transition.opacity.duration.200ms
+                        @keydown.escape.window="ckVideoOpen = false"
+                        class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 backdrop-blur-xs">
+                        <div class="fixed inset-0" @click="ckVideoOpen = false"></div>
+                        <div class="bg-black rounded-2xl overflow-hidden w-full max-w-4xl shadow-2xl relative border border-gray-800 z-10" @click.outside="ckVideoOpen = false">
+                            <button type="button" @click="ckVideoOpen = false" class="absolute top-3 right-3 z-20 bg-black/60 hover:bg-black/90 text-white rounded-full p-2 transition cursor-pointer">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
+                            <div class="relative pt-[56.25%] w-full bg-black">
+                                <iframe :src="ckVideoOpen ? 'https://www.youtube.com/embed/' + ckVideoId + '?autoplay=1' : ''"
+                                        class="absolute top-0 left-0 w-full h-full"
+                                        title="Ringkasan Compute Engine"
+                                        frameborder="0"
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                        referrerpolicy="strict-origin-when-cross-origin"
+                                        allowfullscreen>
+                                </iframe>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+
+                <!-- Penggunaan umum: tabs -->
+                <div id="vm-pertama" class="mt-14 scroll-mt-28" x-data="{ tab: 'tutorial' }">
+                    <h3 class="text-2xl font-normal text-black mb-4">Membuat VM pertama Anda</h3>
+                    <div class="flex gap-8 border-b border-gray-200 text-[15px] text-greyteks mb-6">
+                        <button @click="tab='tutorial'" :class="tab==='tutorial' ? 'text-black border-b-2 border-blue' : ''" class="pb-3 flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17 17.25 21A2.652 2.652 0 0 0 21 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 1 1-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 0 0 4.486-6.336l-3.276 3.277a3.004 3.004 0 0 1-2.25-2.25l3.276-3.276a4.5 4.5 0 0 0-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437 1.745-1.437m6.615 8.206L15.75 15.75M4.867 19.125h.008v.008h-.008v-.008Z" /></svg>
+                            Tutorial, panduan memulai, dan lab
+                        </button>
+                        <button @click="tab='referensi'" :class="tab==='referensi' ? 'text-black border-b-2 border-blue' : ''" class="pb-3 flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" /></svg>
+                            Referensi pembelajaran
+                        </button>
+                    </div>
+
+                    <div x-show="tab==='tutorial'">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start mb-6">
+                            <div>
+                                <h4 class="font-medium text-black mb-3">Tiga cara untuk memulai</h4>
+                                <ol class="list-decimal pl-5 text-[15px] text-greyteks space-y-2">
+                                    <li>Selesaikan <a href="https://cloud.google.com/compute/docs/tutorials" target="_blank" class="text-blue hover:underline">tutorial</a>. Pelajari cara men-deploy <a href="https://cloud.google.com/compute/docs/instances/create-start-instance" target="_blank" class="text-blue hover:underline">VM Linux</a>, <a href="https://cloud.google.com/compute/docs/instances/windows/creating-managing-windows-instances" target="_blank" class="text-blue hover:underline">VM Windows Server</a>, <a href="https://cloud.google.com/load-balancing/docs/https" target="_blank" class="text-blue hover:underline">VM yang di-load balance</a>, <a href="https://cloud.google.com/java" target="_blank" class="text-blue hover:underline">aplikasi Java</a>, <a href="https://cloud.google.com/solutions/website-hosting" target="_blank" class="text-blue hover:underline">situs khusus</a>, <a href="https://cloud.google.com/community/tutorials/setting-up-lamp" target="_blank" class="text-blue hover:underline">stack LAMP</a>, dan banyak lagi.</li>
+                                    <li>Deploy aplikasi contoh yang telah dikonfigurasi sebelumnya — <a href="https://cloud.google.com/solutions" target="_blank" class="text-blue hover:underline">Solusi Praktis</a> — hanya dengan beberapa klik.</li>
+                                    <li>Membuat VM dari awal menggunakan Konsol Google Cloud, CLI, API, atau Library Klien seperti C#, Go, dan Java. Gunakan <a href="https://cloud.google.com/compute/docs" target="_blank" class="text-blue hover:underline">dokumentasi</a> kami untuk panduan langkah demi langkah.</li>
+                                </ol>
+                            </div>
+                            <div>
+                                <a href="https://www.youtube.com/results?search_query=create+a+gce+vm+instance" target="_blank" class="block bg-black rounded-xl p-6 relative overflow-hidden hover:opacity-90 transition group">
+                                    <p class="text-white text-2xl font-medium leading-tight">Create<br>a GCE VM Instance</p>
+                                    <span class="absolute top-4 right-4 w-16 h-16 rounded-full border-4 border-white/20 flex items-center justify-center bg-white/5">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#4285F4" stroke-width="1.5" class="w-8 h-8"><path stroke-linecap="round" stroke-linejoin="round" d="M9 3.75H6.912a2.25 2.25 0 0 0-2.15 1.588L2.35 13.177a2.25 2.25 0 0 0-.1.661V18a2.25 2.25 0 0 0 2.25 2.25h15a2.25 2.25 0 0 0 2.25-2.25v-4.162c0-.224-.034-.447-.1-.661L19.24 5.338a2.25 2.25 0 0 0-2.15-1.588H15M2.25 13.5h3.86a2.25 2.25 0 0 1 2.012 1.244l.256.512a2.25 2.25 0 0 0 2.013 1.244h3.218a2.25 2.25 0 0 0 2.013-1.244l.256-.512a2.25 2.25 0 0 1 2.013-1.244h3.859M12 3v8.25m0 0-3-3m3 3 3-3" /></svg>
+                                    </span>
+                                    <span class="absolute bottom-6 right-8 w-8 h-8 rounded-full bg-white/10"></span>
+                                    <span class="absolute bottom-3 right-16 w-5 h-5 rounded-full bg-white/10"></span>
+                                    <span class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition bg-black/40">
+                                        <span class="w-12 h-12 rounded-full bg-black/60 flex items-center justify-center">
+                                            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                        </span>
+                                    </span>
+                                </a>
+                                <p class="text-xs text-gray-500 mt-2">Cara membuat instance VM di GCE</p>
+                            </div>
+                        </div>
+                        <p class="mb-6"><a href="https://cloud.google.com/compute/docs/instances/create-start-instance" target="_blank" class="text-blue hover:underline font-medium">Dokumentasi: Membuat instance VM</a></p>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <a href="https://cloud.google.com/blog/products/compute" target="_blank" class="border border-gray-200 rounded-lg p-4 text-sm hover:shadow-md transition block"><span class="text-green font-medium">Blog:</span> <span class="text-blue hover:underline">Mengenal Solusi Praktis</span></a>
+                            <a href="https://cloud.google.com/compute/docs/images/create-custom" target="_blank" class="border border-gray-200 rounded-lg p-4 text-sm hover:shadow-md transition block"><span class="text-green font-medium">Dokumentasi:</span> <span class="text-blue hover:underline">Membuat image VM kustom dari disk sumber, image, dan snapshot</span></a>
+                            <a href="https://cloud.google.com/compute/docs/instance-groups" target="_blank" class="border border-gray-200 rounded-lg p-4 text-sm hover:shadow-md transition block"><span class="text-green font-medium">Dokumentasi:</span> <span class="text-blue hover:underline">Mengelola beberapa VM yang dapat diperlakukan sebagai satu entity</span></a>
+                        </div>
+                    </div>
+                    <div x-show="tab==='referensi'" x-cloak>
+                        <h4 class="font-medium text-black mb-3">Cara memilih VM yang tepat</h4>
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start mb-6">
+                            <div>
+                                <p class="text-[15px] text-greyteks leading-relaxed mb-4">
+                                    Dengan ribuan aplikasi, masing-masing dengan persyaratan berbeda, VM mana yang tepat untuk Anda?
+                                </p>
+                                <a href="https://www.youtube.com/results?search_query=choosing+the+right+google+cloud+vm" target="_blank" class="text-blue hover:underline font-medium text-sm">Video: Memilih VM yang tepat</a>
+                            </div>
+                            <div class="bg-whitegrey border border-gray-200 rounded-xl p-6 flex flex-col items-center justify-center gap-3">
+                                <div class="grid grid-cols-4 gap-2 w-full">
+                                    <template x-for="i in 8" :key="i">
+                                        <div class="h-12 bg-white border border-gray-200 rounded flex items-center justify-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-5 h-5 text-blue"><path stroke-linecap="round" stroke-linejoin="round" d="M9 3.75H6.912a2.25 2.25 0 0 0-2.15 1.588L2.35 13.177a2.25 2.25 0 0 0-.1.661V18a2.25 2.25 0 0 0 2.25 2.25h15a2.25 2.25 0 0 0 2.25-2.25v-4.162c0-.224-.034-.447-.1-.661L19.24 5.338a2.25 2.25 0 0 0-2.15-1.588H15M2.25 13.5h3.86a2.25 2.25 0 0 1 2.012 1.244l.256.512a2.25 2.25 0 0 0 2.013 1.244h3.218a2.25 2.25 0 0 0 2.013-1.244l.256-.512a2.25 2.25 0 0 1 2.013-1.244h3.859M12 3v8.25m0 0-3-3m3 3 3-3" /></svg>
+                                        </div>
+                                    </template>
+                                </div>
+                                <p class="text-xs text-gray-500">Pilih VM yang tepat</p>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <a href="https://cloud.google.com/compute/docs/regions-zones" target="_blank" class="border border-gray-200 rounded-lg p-4 text-sm hover:shadow-md transition block"><span class="text-green font-medium">Dokumentasi:</span> <span class="text-blue hover:underline">Melihat region dan zona yang tersedia</span></a>
+                            <a href="https://cloud.google.com/compute/docs/instances/deploy-container-vms" target="_blank" class="border border-gray-200 rounded-lg p-4 text-sm hover:shadow-md transition block"><span class="text-green font-medium">Dokumentasi:</span> <span class="text-blue hover:underline">Memilih strategi deployment VM</span></a>
+                            <a href="https://cloud.google.com/compute/docs/networking" target="_blank" class="border border-gray-200 rounded-lg p-4 text-sm hover:shadow-md transition block"><span class="text-green font-medium">Dokumentasi:</span> <span class="text-blue hover:underline">Memahami jaringan untuk VM</span></a>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="migrasi" class="mt-14 scroll-mt-28" x-data="{ tab: 'tutorial' }">
+                    <h3 class="text-2xl font-normal text-black mb-4">Memigrasikan aplikasi perusahaan</h3>
+                    <div class="flex gap-8 border-b border-gray-200 text-[15px] text-greyteks mb-6">
+                        <button @click="tab='tutorial'" :class="tab==='tutorial' ? 'text-black border-b-2 border-blue' : ''" class="pb-3 flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17 17.25 21A2.652 2.652 0 0 0 21 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 1 1-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 0 0 4.486-6.336l-3.276 3.277a3.004 3.004 0 0 1-2.25-2.25l3.276-3.276a4.5 4.5 0 0 0-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437 1.745-1.437m6.615 8.206L15.75 15.75M4.867 19.125h.008v.008h-.008v-.008Z" /></svg>
+                            Tutorial, panduan memulai, dan lab
+                        </button>
+                        <button @click="tab='referensi'" :class="tab==='referensi' ? 'text-black border-b-2 border-blue' : ''" class="pb-3 flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" /></svg>
+                            Referensi pembelajaran
+                        </button>
+                    </div>
+                    <div x-show="tab==='tutorial'">
+                        <h4 class="font-medium text-black mb-3">Tiga cara untuk memulai</h4>
+                        <ol class="list-decimal pl-5 text-[15px] text-greyteks space-y-2 mb-6">
+                            <li>Selesaikan <a href="https://cloud.google.com/architecture/migration-to-gcp-getting-started" target="_blank" class="text-blue hover:underline">lab atau tutorial</a>. Dapatkan estimasi cepat biaya migrasi Anda, pelajari cara memigrasikan Linux VM, VMware, server SQL, dan masih banyak lagi.</li>
+                            <li>Kunjungi <a href="https://cloud.google.com/architecture" target="_blank" class="text-blue hover:underline">Pusat Arsitektur Cloud</a> untuk mendapatkan saran tentang cara merencanakan, mendesain, dan mengimplementasikan migrasi cloud Anda.</li>
+                            <li>Ajukan permohonan dukungan migrasi dan modernisasi menyeluruh melalui <a href="https://cloud.google.com/migration-center" target="_blank" class="text-blue hover:underline">Rapid Migration and Modernization Program (RaMP)</a> Google Cloud.</li>
+                        </ol>
+                        <p class="mb-6"><a href="https://cloud.google.com/architecture/migration-to-gcp-getting-started" target="_blank" class="text-blue hover:underline font-medium">Panduan: Bermigrasi ke Google Cloud</a></p>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <a href="https://cloud.google.com/architecture/migration-to-gcp-getting-started" target="_blank" class="border border-gray-200 rounded-lg p-4 text-sm hover:shadow-md transition block"><span class="text-green font-medium">Panduan &amp; checklist:</span> <span class="text-blue hover:underline">Memigrasikan workload ke cloud publik</span></a>
+                            <a href="https://cloud.google.com/blog/topics/google-cloud-next" target="_blank" class="border border-gray-200 rounded-lg p-4 text-sm hover:shadow-md transition block"><span class="text-green font-medium">Diumumkan di Next '24:</span> <span class="text-blue hover:underline">Optimalkan biaya dan efisiensi dengan solusi operasi komputasi baru</span></a>
+                            <a href="https://cloud.google.com/architecture" target="_blank" class="border border-gray-200 rounded-lg p-4 text-sm hover:shadow-md transition block"><span class="text-green font-medium">Panduan:</span> <span class="text-blue hover:underline">Kunjungi Cloud Architecture Center</span></a>
+                        </div>
+                    </div>
+                    <div x-show="tab==='referensi'" x-cloak class="text-[15px] text-greyteks">Referensi migrasi akan tampil di sini.</div>
+                </div>
+
+                <div id="backup" class="mt-14 scroll-mt-28" x-data="{ tab: 'tutorial' }">
+                    <h3 class="text-2xl font-normal text-black mb-4">Mencadangkan dan memulihkan aplikasi Anda</h3>
+                    <div class="flex gap-8 border-b border-gray-200 text-[15px] text-greyteks mb-6">
+                        <button @click="tab='tutorial'" :class="tab==='tutorial' ? 'text-black border-b-2 border-blue' : ''" class="pb-3 flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17 17.25 21A2.652 2.652 0 0 0 21 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 1 1-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 0 0 4.486-6.336l-3.276 3.277a3.004 3.004 0 0 1-2.25-2.25l3.276-3.276a4.5 4.5 0 0 0-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437 1.745-1.437m6.615 8.206L15.75 15.75M4.867 19.125h.008v.008h-.008v-.008Z" /></svg>
+                            Tutorial, panduan memulai, dan lab
+                        </button>
+                        <button @click="tab='referensi'" :class="tab==='referensi' ? 'text-black border-b-2 border-blue' : ''" class="pb-3 flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" /></svg>
+                            Referensi pembelajaran
+                        </button>
+                    </div>
+                    <div x-show="tab==='tutorial'">
+                        <h4 class="font-medium text-black mb-3">Jelajahi opsi Anda</h4>
+                        <p class="text-[15px] text-greyteks mb-3">Compute Engine menawarkan cara untuk mencadangkan dan memulihkan:</p>
+                        <ol class="list-decimal pl-5 text-[15px] text-greyteks space-y-2 mb-6">
+                            <li>Instance virtual machine</li>
+                            <li>Volume Persistent Disk dan Hyperdisk</li>
+                            <li>Workload yang berjalan di Compute Engine dan infrastruktur lokal</li>
+                        </ol>
+                        <p class="text-[15px] text-greyteks mb-6">Mulai dengan <a href="https://cloud.google.com/compute/docs/disks/backup-recovery" target="_blank" class="text-blue hover:underline">tutorial</a>, atau baca opsi detail dalam dokumentasi kami.</p>
+                        <p class="mb-6"><a href="https://cloud.google.com/compute/docs/disks/backup-recovery" target="_blank" class="text-blue hover:underline font-medium">Dokumentasi: Pencadangan dan pemulihan</a></p>
+                    </div>
+                    <div x-show="tab==='referensi'" x-cloak class="text-[15px] text-greyteks">Referensi pencadangan dan pemulihan akan tampil di sini.</div>
+                </div>
+
+                <div id="container" class="mt-14 scroll-mt-28" x-data="{ tab: 'tutorial' }">
+                    <h3 class="text-2xl font-normal text-black mb-4">Menjalankan aplikasi modern berbasis container</h3>
+                    <div class="flex gap-8 border-b border-gray-200 text-[15px] text-greyteks mb-6">
+                        <button @click="tab='tutorial'" :class="tab==='tutorial' ? 'text-black border-b-2 border-blue' : ''" class="pb-3 flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17 17.25 21A2.652 2.652 0 0 0 21 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 1 1-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 0 0 4.486-6.336l-3.276 3.277a3.004 3.004 0 0 1-2.25-2.25l3.276-3.276a4.5 4.5 0 0 0-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437 1.745-1.437m6.615 8.206L15.75 15.75M4.867 19.125h.008v.008h-.008v-.008Z" /></svg>
+                            Tutorial, panduan memulai, dan lab
+                        </button>
+                    </div>
+                    <div x-show="tab==='tutorial'">
+                        <h4 class="font-medium text-black mb-3">Tiga cara untuk men-deploy container</h4>
+                        <p class="text-[15px] text-greyteks mb-3">Container memungkinkan Anda menjalankan aplikasi dengan lebih sedikit dependensi:</p>
+                        <ol class="list-decimal pl-5 text-[15px] text-greyteks space-y-2 mb-6">
+                            <li>Untuk mengelola kontrol penuh atas lingkungan Anda, jalankan image container langsung di Compute Engine</li>
+                            <li>Untuk menyederhanakan tugas pengelolaan cluster dan orkestrasi container, gunakan <a href="https://cloud.google.com/kubernetes-engine" target="_blank" class="text-blue hover:underline">Google Kubernetes Engine (GKE)</a></li>
+                            <li>Untuk sepenuhnya menghilangkan kebutuhan akan pengelolaan cluster atau infrastruktur, gunakan <a href="https://cloud.google.com/run" target="_blank" class="text-blue hover:underline">Cloud Run</a></li>
+                        </ol>
+                        <p class="mb-6"><a href="https://cloud.google.com/learn/what-are-containers" target="_blank" class="text-blue hover:underline font-medium">Panduan: Apa itu container?</a></p>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <a href="https://cloud.google.com/compute/docs/containers" target="_blank" class="border border-gray-200 rounded-lg p-4 text-sm hover:shadow-md transition block"><span class="text-green font-medium">Dokumentasi:</span> <span class="text-blue hover:underline">Men-deploy container di Compute Engine</span></a>
+                            <a href="https://cloud.google.com/kubernetes-engine/docs" target="_blank" class="border border-gray-200 rounded-lg p-4 text-sm hover:shadow-md transition block"><span class="text-green font-medium">Dokumentasi:</span> <span class="text-blue hover:underline">Men-deploy container di Google Kubernetes Engine</span></a>
+                            <a href="https://cloud.google.com/run/docs" target="_blank" class="border border-gray-200 rounded-lg p-4 text-sm hover:shadow-md transition block"><span class="text-green font-medium">Dokumentasi:</span> <span class="text-blue hover:underline">Men-deploy container di Google Cloud Run</span></a>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="ai" class="mt-14 scroll-mt-28 pb-4" x-data="{ tab: 'referensi' }">
+                    <h3 class="text-2xl font-normal text-black mb-4">Infrastruktur untuk workload AI</h3>
+                    <div class="flex gap-8 border-b border-gray-200 text-[15px] text-greyteks mb-6">
+                        <button @click="tab='referensi'" :class="tab==='referensi' ? 'text-black border-b-2 border-blue' : ''" class="pb-3 flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" /></svg>
+                            Referensi pembelajaran
+                        </button>
+                    </div>
+                    <div x-show="tab==='referensi'">
+                        <h4 class="font-medium text-black mb-3">Hardware yang dioptimalkan AI</h4>
+                        <p class="text-[15px] text-greyteks leading-relaxed mb-4">
+                            Kami merancang kelompok mesin yang dioptimalkan akselerator untuk memberikan performa dan efisiensi yang Anda perlukan untuk workload AI. Mulai dengan membandingkan GPU kami, atau pelajari TPU untuk tugas inferensi dan pelatihan AI berskala besar.
+                        </p>
+                        <p class="mb-6"><a href="https://cloud.google.com/compute/docs/gpus" target="_blank" class="text-blue hover:underline font-medium">Dokumentasi: VM yang dioptimalkan akselerator</a></p>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                            <a href="https://cloud.google.com/blog/products/ai-machine-learning" target="_blank" class="border border-gray-200 rounded-lg p-4 text-sm hover:shadow-md transition block"><span class="text-green font-medium">Arsitektur:</span> <span class="text-blue hover:underline">Pelajari arsitektur superkomputer Google Cloud, AI Hypercomputer</span></a>
+                            <a href="https://cloud.google.com/compute/docs/gpus" target="_blank" class="border border-gray-200 rounded-lg p-4 text-sm hover:shadow-md transition block"><span class="text-green font-medium">Dokumentasi:</span> <span class="text-blue hover:underline">Memahami dan membandingkan GPU</span></a>
+                            <a href="https://cloud.google.com/tpu" target="_blank" class="border border-gray-200 rounded-lg p-4 text-sm hover:shadow-md transition block"><span class="text-green font-medium">Ringkasan:</span> <span class="text-blue hover:underline">Apa itu TPU?</span></a>
+                        </div>
+                        <p class="text-[15px] text-greyteks">Apa perbedaan antara <a href="https://cloud.google.com/discover/gpu-vs-tpu" target="_blank" class="text-blue hover:underline">CPU</a>, <a href="https://cloud.google.com/discover/gpu-vs-tpu" target="_blank" class="text-blue hover:underline">GPU</a>, dan <a href="https://cloud.google.com/tpu" target="_blank" class="text-blue hover:underline">TPU</a>?</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- HARGA -->
+            <section id="harga" class="scroll-mt-28">
+                <p class="text-sm tracking-wide text-greyteks mb-4" x-text="$store.site.t('HARGA','PRICING')"></p>
+                <div class="bg-green rounded-t-xl px-8 py-6 text-white">
+                    <h3 class="text-2xl font-medium">Cara kerja penetapan harga</h3>
+                    <p class="text-[15px] mt-1">Harga dihitung berdasarkan pemakaian virtual machine, jaringan, dan penyimpanan.</p>
+                </div>
+                <div class="border border-t-0 border-gray-200 rounded-b-xl divide-y divide-gray-200">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 px-8 py-6 items-center">
+                        <p class="font-medium text-black">Memulai tanpa biaya</p>
+                        <p class="text-[15px] text-greyteks md:col-span-1">Pengguna baru mendapat <a href="https://cloud.google.com/free" target="_blank" class="text-blue hover:underline">kredit uji coba gratis</a> senilai $300 selama 90 hari.</p>
+                        <p class="text-green text-xl font-medium text-right">Gratis</p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 px-8 py-6 items-center">
+                        <p class="font-medium text-black"></p>
+                        <p class="text-[15px] text-greyteks"><a href="https://cloud.google.com/free" target="_blank" class="text-blue hover:underline">Paket gratis Compute Engine</a> memberi Anda satu instance VM e2-micro, penyimpanan persistent disk standar hingga 30 GB, dan transfer data keluar hingga 1 GB per bulan.</p>
+                        <p class="text-green text-xl font-medium text-right">Gratis</p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 px-8 py-6 items-center">
+                        <p class="font-medium text-black">Instance VM</p>
+                        <p class="text-[15px] text-greyteks">Pay-as-you-go. Hanya bayar untuk layanan yang Anda gunakan. Tidak ada biaya di muka. Tidak ada biaya penghentian. Harga bervariasi menurut produk dan penggunaan.</p>
+                        <p class="text-right"><span class="text-green text-xl font-medium">Mulai dari $0,01</span><br><span class="text-xs text-gray-500">(e2-micro)</span></p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 px-8 py-6 items-center">
+                        <p class="font-medium text-black"><a href="https://cloud.google.com/confidential-computing" target="_blank" class="text-blue hover:underline">Confidential VMs</a></p>
+                        <p class="text-[15px] text-greyteks">Enkripsi data yang sedang digunakan dan saat sedang diproses.</p>
+                        <p class="text-right"><span class="text-green text-xl font-medium">Mulai dari $0,936</span><br><span class="text-xs text-gray-500">Per vCPU per bulan</span></p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 px-8 py-6 items-center">
+                        <p class="font-medium text-black"><a href="https://cloud.google.com/compute/docs/nodes/sole-tenant-nodes" target="_blank" class="text-blue hover:underline">Sole-tenant node</a></p>
+                        <p class="text-[15px] text-greyteks">Server fisik yang didedikasikan untuk project Anda. Bayar premi di atas harga standar (tarif bayar sesuai penggunaan untuk resource memori dan vCPU tertentu).</p>
+                        <p class="text-right"><span class="text-green text-xl font-medium">+10%</span><br><span class="text-xs text-gray-500">Di atas harga standar</span></p>
+                    </div>
+
+                    <!-- DISKON -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 px-8 py-6 items-center">
+                        <p class="font-medium text-black"><a href="https://cloud.google.com/compute/docs/committed-use-discounts" target="_blank" class="text-blue hover:underline">Diskon: Abonemen</a></p>
+                        <p class="text-[15px] text-greyteks">Bayar lebih sedikit jika Anda berkomitmen untuk melakukan pembelanjaan minimum di awal.</p>
+                        <p class="text-right"><span class="text-green text-xl font-medium">Hemat hingga 70%</span></p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 px-8 py-6 items-center">
+                        <p class="font-medium text-black">Diskon: <a href="https://cloud.google.com/compute/docs/instances/spot" target="_blank" class="text-blue hover:underline">Spot VM</a></p>
+                        <p class="text-[15px] text-greyteks">Bayar lebih murah saat Anda menjalankan tugas fault-tolerant menggunakan kapasitas Compute Engine yang berlebih.</p>
+                        <p class="text-right"><span class="text-green text-xl font-medium">Hemat hingga 91%</span></p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 px-8 py-6 items-center">
+                        <p class="font-medium text-black">Diskon: <a href="https://cloud.google.com/compute/docs/sustained-use-discounts" target="_blank" class="text-blue hover:underline">Penggunaan berkelanjutan</a></p>
+                        <p class="text-[15px] text-greyteks">Bayar lebih murah untuk resource yang digunakan selama lebih dari 25% dalam sebulan (dan tidak menerima diskon lainnya).</p>
+                        <p class="text-right"><span class="text-green text-xl font-medium">Hemat hingga 30%</span></p>
+                    </div>
+
+                    <!-- PENYIMPANAN -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 px-8 py-6 items-center">
+                        <p class="font-medium text-black">Penyimpanan</p>
+                        <p class="text-[15px] text-greyteks md:col-span-2">&nbsp;</p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 px-8 py-6 items-center">
+                        <p class="font-medium text-black"><a href="https://cloud.google.com/compute/docs/disks" target="_blank" class="text-blue hover:underline">Persistent disk</a></p>
+                        <p class="text-[15px] text-greyteks">Perangkat penyimpanan jaringan tahan lama yang dapat diakses oleh instance virtual machine (VM) Anda. Data pada setiap volume Persistent Disk didistribusikan ke beberapa disk fisik.</p>
+                        <p class="text-right"><span class="text-green text-xl font-medium">Mulai dari $0,04</span><br><span class="text-xs text-gray-500">Per GB per bulan</span></p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 px-8 py-6 items-center">
+                        <p class="font-medium text-black"><a href="https://cloud.google.com/compute/docs/disks/hyperdisks" target="_blank" class="text-blue hover:underline">Hyperdisk</a></p>
+                        <p class="text-[15px] text-greyteks">Penyimpanan persistent disk tercepat untuk Compute Engine dengan volume dan performa yang dapat dikonfigurasi serta diubah ukurannya secara dinamis.</p>
+                        <p class="text-right"><span class="text-green text-xl font-medium">Mulai dari $0,125</span><br><span class="text-xs text-gray-500">Per GB per bulan</span></p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 px-8 py-6 items-center">
+                        <p class="font-medium text-black"><a href="https://cloud.google.com/compute/docs/disks/local-ssd" target="_blank" class="text-blue hover:underline">SSD Lokal</a></p>
+                        <p class="text-[15px] text-greyteks">Terpasang secara fisik ke server yang menghosting VM Anda.</p>
+                        <p class="text-right"><span class="text-green text-xl font-medium">Mulai dari $0,08</span><br><span class="text-xs text-gray-500">Per GB per bulan</span></p>
+                    </div>
+
+                    <!-- JARINGAN -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 px-8 py-6 items-center">
+                        <p class="font-medium text-black">Jaringan</p>
+                        <p class="text-[15px] text-greyteks md:col-span-2">&nbsp;</p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 px-8 py-6 items-center">
+                        <p class="font-medium text-black"><a href="https://cloud.google.com/network-tiers" target="_blank" class="text-blue hover:underline">Paket Standar</a></p>
+                        <p class="text-[15px] text-greyteks">Manfaatkan internet publik untuk meneruskan traffic antara layanan Anda dan pengguna Anda.</p>
+                        <p class="text-right"><span class="text-green text-xl font-medium">Gratis</span><br><span class="text-xs text-gray-500">Transfer masuk, selalu. Transfer keluar, hingga 200 GB per bulan.</span></p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 px-8 py-6 items-center">
+                        <p class="font-medium text-black"><a href="https://cloud.google.com/network-tiers" target="_blank" class="text-blue hover:underline">Paket premium</a></p>
+                        <p class="text-[15px] text-greyteks">Manfaatkan backbone premium Google untuk meneruskan traffic ke dan dari pengguna eksternal Anda.</p>
+                        <p class="text-right"><span class="text-green text-xl font-medium">Mulai dari $0,08</span><br><span class="text-xs text-gray-500">Per GB per bulan untuk transfer data keluar. Transfer masuk tetap gratis.</span></p>
+                    </div>
+                </div>
+
+                <!-- PETUNJUK KALKULATOR -->
+                <div class="flex items-center gap-2 mt-4 text-xs sm:text-sm font-medium text-gray-700">
+                    <span class="w-2.5 h-2.5 bg-[#FBBC05] transform rotate-45 inline-block shrink-0"></span>
+                    <span>Perkirakan biaya dengan <a href="https://cloud.google.com/products/calculator" target="_blank" class="text-blue hover:underline">kalkulator harga</a>.</span>
+                </div>
+
+                <!-- KALKULATOR & BANTUAN -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+                    <div class="bg-grey rounded-xl p-6">
+                        <p class="text-xs font-semibold uppercase tracking-wider text-gray-600 mb-3">Kalkulator Harga</p>
+                        <p class="text-[15px] text-gray-700 leading-relaxed mb-4">Perkirakan biaya Compute Engine bulanan Anda, termasuk biaya pengelolaan cluster.</p>
+                        <a href="https://cloud.google.com/products/calculator" target="_blank" class="text-blue hover:underline font-medium text-sm">Perkirakan harga</a>
+                    </div>
+                    <div class="bg-[#e8f0fe] rounded-xl p-6">
+                        <p class="text-xs font-semibold uppercase tracking-wider text-gray-600 mb-3">Butuh Bantuan?</p>
+                        <p class="text-[15px] text-gray-700 leading-relaxed mb-4">Chat dengan kami secara online, langsung hubungi kami, atau minta kami menghubungi Anda kembali.</p>
+                        <a href="https://cloud.google.com/contact/form" target="_blank" class="text-blue hover:underline font-medium text-sm">Hubungi kami</a>
+                    </div>
+                </div>
+
+                <!-- MULAI SEKARANG JUGA -->
+                <div class="bg-black rounded-2xl p-8 mt-8">
+                    <h3 class="text-2xl font-medium mb-6" style="color:#FBBC05;">Mulai sekarang juga</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                        <div>
+                            <p class="text-white text-[15px] mb-4">Mulai dengan kredit gratis senilai $300</p>
+                            <a href="https://console.cloud.google.com/freetrial" target="_blank" class="inline-block bg-blue text-white text-sm font-medium px-6 py-2.5 rounded-full hover:bg-blue-700 transition">Mulai secara gratis</a>
+                        </div>
+                        <div>
+                            <p class="text-white text-[15px] mb-4">Punya project besar?</p>
+                            <a href="https://cloud.google.com/contact/form" target="_blank" class="inline-block bg-white text-black text-sm font-medium px-6 py-2.5 rounded-full hover:bg-gray-100 transition">Hubungi bagian penjualan</a>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 bg-[#111318] rounded-xl p-6">
+                        <div class="flex gap-3">
+                            <span class="w-3 h-3 mt-1 bg-blue-400 shrink-0"></span>
+                            <div>
+                                <p class="text-white text-[14px] leading-relaxed">Pelajari panduan memulai, tutorial, atau panduan interaktif untuk Compute Engine</p>
+                                <a href="https://cloud.google.com/compute/docs/tutorials" target="_blank" class="text-blue-400 hover:underline text-sm font-medium mt-2 inline-block">Pelajari panduan memulai</a>
+                            </div>
+                        </div>
+                        <div class="flex gap-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#FBBC05" class="w-4 h-4 mt-1 shrink-0"><path fill-rule="evenodd" d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.598 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003ZM12 8.25a.75.75 0 0 1 .75.75v3.75a.75.75 0 0 1-1.5 0V9a.75.75 0 0 1 .75-.75Zm0 8.25a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Z" clip-rule="evenodd" /></svg>
+                            <div>
+                                <p class="text-white text-[14px] leading-relaxed">Pilih jalur pembelajaran, bangun keahlian, dan uji pengetahuan Anda dengan Cloud Skills Boost</p>
+                                <a href="https://www.cloudskillsboost.google/" target="_blank" class="text-blue-400 hover:underline text-sm font-medium mt-2 inline-block">Jelajahi jalur pembelajaran</a>
+                            </div>
+                        </div>
+                        <div class="flex gap-3">
+                            <span class="w-3 h-3 mt-1.5 rounded-full bg-green shrink-0"></span>
+                            <div>
+                                <p class="text-white text-[14px] leading-relaxed">Belajar dan bereksperimen dengan template solusi siap pakai yang dipilih langsung oleh pakar kami</p>
+                                <a href="https://cloud.google.com/solutions" target="_blank" class="text-blue-400 hover:underline text-sm font-medium mt-2 inline-block">Jelajahi Solusi Praktis</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- KASUS BISNIS -->
+            <section id="kasus-bisnis" class="scroll-mt-28">
+                <p class="text-sm tracking-wide text-greyteks mb-4" x-text="$store.site.t('KASUS BISNIS','BUSINESS CASE')"></p>
+                <h3 class="text-2xl font-normal text-black mb-2">Belajar dari pelanggan Compute Engine</h3>
+                <div class="h-px bg-gray-200 mb-8"></div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+                    <div class="lg:col-span-2">
+                        <h4 class="text-3xl font-medium text-black leading-snug mb-4">
+                            Dengan memigrasikan 40.000 VM lokal ke cloud, Sabre mengurangi biaya IT mereka sebesar 40%.
+                        </h4>
+                        <p class="text-sm text-greyteks mb-4">Joe DiFonzo, CIO, Sabre</p>
+                        <p class="text-[15px] text-greyteks leading-relaxed mb-6">
+                            Kami telah menghemat rutusan juta dolar biaya dari bisnis kami.
+                        </p>
+                        <a href="https://www.youtube.com/results?search_query=Sabre+Google+Cloud+migration+interview" target="_blank" class="inline-block bg-blue text-white text-[15px] font-medium px-6 py-2.5 rounded-full hover:bg-blue/90 active:scale-95 transition cursor-pointer">Tonton wawancaranya</a>
+                    </div>
+
+                    <div class="bg-whitegrey rounded-2xl p-6">
+                        <p class="text-sm font-medium text-black mb-4">Konten terkait</p>
+                        <div class="space-y-4 text-[15px] text-greyteks divide-y divide-gray-200">
+                            <p class="pb-4">Gamebear menggunakan Cloud Load Balancing untuk menurunkan latensi jaringan hingga 10 kali lipat.</p>
+                            <p class="py-4">Dengan SLA waktu beroperasi 99,99%, Macy's merasa yakin sistem mereka akan berjalan lancar.</p>
+                            <p class="pt-4">Wayfair menggunakan GPU untuk mengotomatiskan pembuatan model 3D, sehingga mengurangi biaya sebesar $9 juta.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PARTNER & INTEGRASI -->
+            <section id="partner" class="scroll-mt-28" x-data="{ ptab: 'penilaian' }">
+                <p class="text-sm tracking-wide text-greyteks mb-4" x-text="$store.site.t('PARTNER & INTEGRASI','PARTNERS & INTEGRATIONS')"></p>
+                <h3 class="text-2xl font-normal text-black mb-6">Percepat migrasi Anda dengan partner</h3>
+
+                <div class="flex gap-8 border-b border-gray-200 text-[15px] text-greyteks mb-8">
+                    <button @click="ptab='penilaian'" :class="ptab==='penilaian' ? 'text-black font-medium border-b-2 border-blue' : ''" class="pb-3 transition">Penilaian dan perencanaan</button>
+                    <button @click="ptab='migrasi'" :class="ptab==='migrasi' ? 'text-black font-medium border-b-2 border-blue' : ''" class="pb-3 transition">Migrasi</button>
+                </div>
+
+                <div x-show="ptab==='penilaian'">
+                    <div class="flex flex-wrap items-center gap-x-14 gap-y-6 mb-8 opacity-80">
+                        <span class="text-lg font-semibold text-blue">☁ StratoZone</span>
+                        <span class="text-lg font-semibold text-orange-500">📊 RISC Networks</span>
+                        <span class="text-lg font-semibold text-black">Cloudamize</span>
+                        <span class="text-lg font-semibold text-black">ATA<span class="text-gray-400">DATA</span></span>
+                    </div>
+                    <p class="text-[15px] text-greyteks leading-relaxed">
+                        Siap memindahkan workload komputasi Anda ke Google Cloud? Mitra-mitra ini dapat memandu setiap tahap prosesnya —
+                        mulai dari penilaian awal dan perencanaan hingga eksekusi migrasi.
+                    </p>
+                </div>
+                <div x-show="ptab==='migrasi'" x-cloak>
+                    <div class="flex flex-wrap items-center gap-x-14 gap-y-6 mb-8 opacity-80">
+                        <span class="text-lg font-bold text-black">accenture<span class="text-[#a100ff]">&gt;</span></span>
+                        <span class="text-lg font-bold text-black">Deloitte<span class="text-[#86bc25]">.</span></span>
+                        <span class="text-lg font-bold text-[#e2231a]">Rackspace<span class="text-black">.</span></span>
+                        <span class="text-lg font-semibold text-[#7b2ff7]">Insight<span class="text-black">.</span></span>
+                        <span class="text-lg font-semibold text-black">wipro</span>
+                    </div>
+                    <p class="text-[15px] text-greyteks leading-relaxed">
+                        Siap memindahkan workload komputasi Anda ke Google Cloud? Para partner ini dapat memandu Anda menjalani setiap tahap — mulai dari perencanaan dan penilaian awal hingga migrasi.
+                    </p>
+                </div>
+            </section>
+
+            <!-- FAQ -->
+            <section id="faq" class="scroll-mt-28 pb-16" x-data="{ items: Array(20).fill(false), expandAll(){ const allOpen = this.items.every(i=>i); this.items = this.items.map(()=>!allOpen); } }">
+                <p class="text-sm tracking-wide text-greyteks mb-4" x-text="$store.site.t('FAQ','FAQ')"></p>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+                    <div>
+                        <h3 class="text-2xl font-medium text-black leading-snug mb-2">Cara lain untuk mendapatkan jawaban atas pertanyaan Anda</h3>
+                    </div>
+
+                    <div class="lg:col-span-2">
+                        <div class="flex items-center justify-between mb-2">
+                            <p class="text-sm font-medium text-greyteks">FAQ</p>
+                            <button @click="expandAll()" class="text-blue text-sm font-medium flex items-center gap-1 hover:underline">
+                                Luaskan semua
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4"><path fill-rule="evenodd" d="M10 3a.75.75 0 01.75.75v4.5h4.5a.75.75 0 010 1.5h-4.5v4.5a.75.75 0 01-1.5 0v-4.5h-4.5a.75.75 0 010-1.5h4.5v-4.5A.75.75 0 0110 3z" clip-rule="evenodd" /></svg>
+                            </button>
+                        </div>
+                        <div class="divide-y divide-gray-200 border-t border-gray-200">
+
+                            <template x-for="(q, idx) in [
+                                {
+                                    q: 'Apa itu Compute Engine? Apa kegunaannya?',
+                                    a: 'Compute Engine adalah produk Infrastructure as a Service yang menawarkan virtual machine (VM) fleksibel dan dikelola sendiri yang dihosting di infrastruktur Google. Compute Engine mencakup VM berbasis Linux dan Windows yang berjalan di KVM, opsi penyimpanan lokal dan tahan lama, serta API berbasis REST sederhana untuk konfigurasi dan kontrol. Layanan ini terintegrasi dengan teknologi Google Cloud seperti Cloud Storage, App Engine, dan BigQuery untuk memperluas kemampuan komputasi dasar guna membuat aplikasi yang lebih kompleks dan canggih.'
+                                },
+                                {
+                                    q: 'Apa yang dimaksud dengan CPU virtual di Compute Engine?',
+                                    a: 'CPU virtual (vCPU) merepresentasikan satu thread perangkat keras pada mesin fisik yang dialokasikan untuk instance VM Anda, dan menjadi satuan yang dipakai untuk menentukan ukuran serta harga sebuah mesin.'
+                                },
+                                {
+                                    q: 'Bagaimana hubungan antara Compute Engine dan App Engine?',
+                                    a: 'App Engine adalah platform terkelola sepenuhnya (PaaS) yang dibangun di atas infrastruktur yang sama dengan Compute Engine, tetapi mengabstraksi pengelolaan server sehingga Anda cukup fokus pada kode aplikasi. Compute Engine memberi Anda kontrol penuh atas VM, sedangkan App Engine cocok jika Anda ingin men-deploy aplikasi tanpa mengelola infrastruktur sama sekali.'
+                                },
+                                {
+                                    q: 'Bagaimana cara memulainya?',
+                                    a: 'Anda dapat memulai dengan mendaftar akun Google Cloud gratis, mengaktifkan kredit uji coba senilai $300, lalu membuat instance VM pertama Anda melalui Konsol Google Cloud, gcloud CLI, atau Terraform.'
+                                },
+                                {
+                                    q: 'Bagaimana cara kerja penentuan harga dan pembelian?',
+                                    a: 'Harga dihitung berdasarkan pemakaian aktual VM, jaringan, dan penyimpanan per detik, dengan diskon otomatis untuk penggunaan berkelanjutan serta opsi diskon abonemen dan Spot VM untuk workload yang fleksibel.'
+                                },
+                                {
+                                    q: 'Apakah Google menawarkan dukungan berbayar?',
+                                    a: 'Ya, Google Cloud menyediakan beberapa paket dukungan berbayar mulai dari Standard hingga Premium, dengan waktu respons dan akses ke tim ahli teknis yang bervariasi sesuai kebutuhan bisnis Anda.'
+                                },
+                                {
+                                    q: 'Apakah Anda menawarkan perjanjian tingkat layanan (SLA)?',
+                                    a: 'Ya, kami menawarkan <a href=\"https://cloud.google.com/compute/sla\" target=\"_blank\" class=\"text-blue hover:underline\">perjanjian tingkat layanan</a>. SLA ketersediaan komputasi instance tunggal mulai dari 99,9% hingga 99,95%, tergantung jenis dan konfigurasi mesin yang digunakan.'
+                                },
+                                {
+                                    q: 'Ke mana saya dapat mengirim masukan?',
+                                    a: 'Anda dapat mengirimkan masukan melalui halaman dukungan Google Cloud, forum komunitas, atau menghubungi tim penjualan untuk kebutuhan enterprise.'
+                                },
+                                {
+                                    q: 'Bagaimana cara membuat project?',
+                                    a: 'Project dapat dibuat langsung dari Konsol Google Cloud dengan memilih “Buat Project”, memberi nama, menautkan akun penagihan, lalu mengaktifkan API Compute Engine sebelum membuat instance.'
+                                },
+                                {
+                                    q: 'Apa perbedaan antara nomor project dan project ID?',
+                                    a: 'Project ID adalah pengenal unik yang Anda tentukan sendiri dan dipakai di URL serta perintah CLI, sedangkan nomor project adalah pengenal numerik yang dibuat otomatis oleh Google Cloud dan digunakan secara internal oleh beberapa API.'
+                                },
+                                {
+                                    q: 'Langkah apa saja yang dilakukan Google untuk melindungi data saya?',
+                                    a: 'Ya, kami menerapkan <a href=\"https://cloud.google.com/security/encryption/default-encryption\" target=\"_blank\" class=\"text-blue hover:underline\">enkripsi disk</a> secara default untuk data yang tersimpan, ditambah enkripsi in-transit, kontrol akses IAM, serta opsi Shielded VM dan Confidential VM untuk lapisan keamanan tambahan.'
+                                },
+                                {
+                                    q: 'Bagaimana cara memilih ukuran yang tepat untuk persistent disk saya?',
+                                    a: 'Sesuaikan ukuran disk dengan kebutuhan throughput dan IOPS workload Anda — semakin besar volume Persistent Disk, semakin tinggi performa yang didapat; gunakan rekomendasi ukuran otomatis di Konsol sebagai titik awal.'
+                                },
+                                {
+                                    q: 'Di mana saya dapat meminta lebih banyak kuota untuk project saya?',
+                                    a: 'Anda dapat mengajukan permintaan peningkatan kuota melalui halaman “IAM & Admin > Kuota” di Konsol Google Cloud, lalu memilih resource yang ingin ditingkatkan.'
+                                },
+                                {
+                                    q: 'Jenis konfigurasi mesin apa (memori, RAM, CPU) yang dapat saya pilih untuk instance saya?',
+                                    a: 'Anda dapat memilih jenis mesin preset (E2, N-series, C-series, dan lainnya) atau membuat jenis mesin kustom dengan kombinasi vCPU dan memori sesuai kebutuhan, mulai dari 1 hingga 96 vCPU.'
+                                },
+                                {
+                                    q: 'Jika saya tidak sengaja menghapus instance, dapatkah saya mengambilnya?',
+                                    a: 'Jika disk boot instance masih ada atau Anda memiliki snapshot/backup, VM dapat dibuat ulang dari sana. Namun instance yang dihapus beserta disknya tanpa backup umumnya tidak dapat dipulihkan.'
+                                },
+                                {
+                                    q: 'Apakah saya memiliki opsi untuk menggunakan pusat data regional di negara tertentu?',
+                                    a: 'Ya, Google Cloud memiliki puluhan region di berbagai negara sehingga Anda dapat memilih lokasi yang sesuai dengan kebutuhan residensi data dan latensi pengguna Anda.'
+                                },
+                                {
+                                    q: 'Bagaimana cara mengetahui apakah suatu zona sedang offline?',
+                                    a: 'Anda dapat memeriksa halaman Status Google Cloud secara real-time untuk melihat ketersediaan layanan di setiap region dan zona.'
+                                },
+                                {
+                                    q: 'Instance saya dapat dijalankan pada sistem operasi apa?',
+                                    a: 'Compute Engine mendukung berbagai image publik seperti Debian, Ubuntu, CentOS, Rocky Linux, RHEL, SUSE, serta Windows Server, di samping opsi untuk mengunggah image kustom Anda sendiri.'
+                                },
+                                {
+                                    q: 'Di zona apa saja saya dapat membuat instance?',
+                                    a: 'Instance dapat dibuat di zona mana pun yang tersedia dalam region yang Anda pilih, selama kelompok mesin yang diinginkan tersedia di zona tersebut.'
+                                },
+                                {
+                                    q: 'Bagaimana jika pertanyaan saya tidak terjawab di sini?',
+                                    a: 'Anda dapat mengunjungi dokumentasi lengkap, forum komunitas Google Cloud, atau menghubungi tim dukungan/penjualan kami untuk bantuan lebih lanjut.'
+                                }
+                            ]" :key="idx">
+                                <div class="py-5">
+                                    <button @click="items[idx] = !items[idx]" class="w-full flex items-center justify-between text-left">
+                                        <span class="text-lg font-medium text-black" x-text="q.q"></span>
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5 shrink-0 transition-transform ml-4" :class="items[idx] ? 'rotate-180' : ''"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" /></svg>
+                                    </button>
+                                    <div x-show="items[idx]" x-cloak class="text-[15px] text-greyteks leading-relaxed mt-4" x-html="q.a"></div>
+                                </div>
+                            </template>
+
+                        </div>
+
+                        <div class="flex flex-wrap gap-3 mt-6">
+                            <a href="https://cloud.google.com/compute/docs/faq" target="_blank" class="border border-gray-300 text-blue text-sm font-medium px-5 py-2.5 rounded-full hover:bg-blue-50 transition">Semua FAQ Komputasi</a>
+                            <a href="https://cloud.google.com/contact/form" target="_blank" class="border border-gray-300 text-blue text-sm font-medium px-5 py-2.5 rounded-full hover:bg-blue-50 transition">Ajukan pertanyaan kepada kami</a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- FOOTER SITUS -->
+    <footer class="bg-white border-t border-gray-200 mt-8">
+        <div class="max-w-[1900px] mx-auto px-6 lg:px-8 py-12 grid grid-cols-2 md:grid-cols-5 gap-8 text-sm text-greyteks">
+            <div>
+                <p class="font-medium text-black mb-3" x-text="$store.site.t('Mengapa Google','Why Google')"></p>
+                <ul class="space-y-2">
+                    <li><a href="https://cloud.google.com/why-google-cloud" target="_blank" class="hover:text-blue hover:underline">Memilih Google Cloud</a></li>
+                    <li><a href="https://cloud.google.com/trust-center" target="_blank" class="hover:text-blue hover:underline">Kepercayaan dan keamanan</a></li>
+                    <li><a href="https://cloud.google.com/modern-infrastructure" target="_blank" class="hover:text-blue hover:underline">Cloud Infrastruktur Modern</a></li>
+                    <li><a href="https://cloud.google.com/multicloud" target="_blank" class="hover:text-blue hover:underline">Multi-cloud</a></li>
+                    <li><a href="https://cloud.google.com/about/locations" target="_blank" class="hover:text-blue hover:underline">Infrastruktur global</a></li>
+                    <li><a href="https://cloud.google.com/about/locations" target="_blank" class="hover:text-blue hover:underline">Lokasi</a></li>
+                    <li><a href="https://cloud.google.com/customers" target="_blank" class="hover:text-blue hover:underline">Pelanggan dan studi kasus</a></li>
+                    <li><a href="https://cloud.google.com/analyst-reports" target="_blank" class="hover:text-blue hover:underline">Laporan analis</a></li>
+                    <li><a href="https://cloud.google.com/whitepapers" target="_blank" class="hover:text-blue hover:underline">Laporan resmi</a></li>
+                    <li><a href="https://cloud.google.com/blog" target="_blank" class="hover:text-blue hover:underline">Blog</a></li>
+                </ul>
+            </div>
+            <div>
+                <p class="font-medium text-black mb-3" x-text="$store.site.t('Produk dan harga','Products and pricing')"></p>
+                <ul class="space-y-2">
+                    <li><a href="https://cloud.google.com/pricing" target="_blank" class="hover:text-blue hover:underline">Harga Google Cloud</a></li>
+                    <li><a href="https://workspace.google.com/pricing" target="_blank" class="hover:text-blue hover:underline">Harga Google Workspace</a></li>
+                    <li><a href="https://cloud.google.com/products" target="_blank" class="hover:text-blue hover:underline">Lihat semua produk</a></li>
+                </ul>
+            </div>
+            <div>
+                <p class="font-medium text-black mb-3" x-text="$store.site.t('Solusi','Solutions')"></p>
+                <ul class="space-y-2">
+                    <li><a href="https://cloud.google.com/solutions/infrastructure-modernization" target="_blank" class="hover:text-blue hover:underline">Modernisasi infrastruktur</a></li>
+                    <li><a href="https://cloud.google.com/products/databases" target="_blank" class="hover:text-blue hover:underline">Database</a></li>
+                    <li><a href="https://cloud.google.com/solutions/application-modernization" target="_blank" class="hover:text-blue hover:underline">Modernisasi aplikasi</a></li>
+                    <li><a href="https://cloud.google.com/solutions/smart-analytics" target="_blank" class="hover:text-blue hover:underline">Analisis smart</a></li>
+                    <li><a href="https://cloud.google.com/ai" target="_blank" class="hover:text-blue hover:underline">Kecerdasan Buatan</a></li>
+                    <li><a href="https://cloud.google.com/security" target="_blank" class="hover:text-blue hover:underline">Keamanan</a></li>
+                    <li><a href="https://workspace.google.com" target="_blank" class="hover:text-blue hover:underline">Produktivitas &amp; transformasi tugas</a></li>
+                    <li><a href="https://cloud.google.com/solutions#industry-solutions" target="_blank" class="hover:text-blue hover:underline">Solusi industri</a></li>
+                    <li><a href="https://cloud.google.com/solutions/devops" target="_blank" class="hover:text-blue hover:underline">Solusi DevOps</a></li>
+                    <li><a href="https://cloud.google.com/solutions/smb" target="_blank" class="hover:text-blue hover:underline">Solusi bisnis kecil</a></li>
+                    <li><a href="https://cloud.google.com/solutions" target="_blank" class="hover:text-blue hover:underline">Lihat semua solusi</a></li>
+                </ul>
+            </div>
+            <div>
+                <p class="font-medium text-black mb-3" x-text="$store.site.t('Resource','Resources')"></p>
+                <ul class="space-y-2">
+                    <li><a href="https://cloud.google.com/affiliate" target="_blank" class="hover:text-blue hover:underline">Program Afiliasi Google Cloud</a></li>
+                    <li><a href="https://cloud.google.com/docs" target="_blank" class="hover:text-blue hover:underline">Dokumentasi Google Cloud</a></li>
+                    <li><a href="https://cloud.google.com/docs/get-started" target="_blank" class="hover:text-blue hover:underline">Panduan memulai Google Cloud</a></li>
+                    <li><a href="https://console.cloud.google.com/marketplace" target="_blank" class="hover:text-blue hover:underline">Google Cloud Marketplace</a></li>
+                    <li><a href="https://cloud.google.com/learn" target="_blank" class="hover:text-blue hover:underline">Pelajari cloud computing</a></li>
+                    <li><a href="https://cloud.google.com/support" target="_blank" class="hover:text-blue hover:underline">Dukungan</a></li>
+                    <li><a href="https://cloud.google.com/code-samples" target="_blank" class="hover:text-blue hover:underline">Contoh kode</a></li>
+                    <li><a href="https://cloud.google.com/architecture" target="_blank" class="hover:text-blue hover:underline">Cloud Architecture Center</a></li>
+                    <li><a href="https://cloud.google.com/training" target="_blank" class="hover:text-blue hover:underline">Pelatihan</a></li>
+                    <li><a href="https://cloud.google.com/certification" target="_blank" class="hover:text-blue hover:underline">Sertifikasi</a></li>
+                    <li><a href="https://developers.google.com" target="_blank" class="hover:text-blue hover:underline">Google Developers</a></li>
+                    <li><a href="https://cloud.google.com/startup" target="_blank" class="hover:text-blue hover:underline">Google Cloud untuk Startup</a></li>
+                    <li><a href="https://status.cloud.google.com" target="_blank" class="hover:text-blue hover:underline">Status sistem</a></li>
+                    <li><a href="https://cloud.google.com/release-notes" target="_blank" class="hover:text-blue hover:underline">Catatan Rilis</a></li>
+                </ul>
+            </div>
+            <div>
+                <p class="font-medium text-black mb-3" x-text="$store.site.t('Engage','Engage')"></p>
+                <ul class="space-y-2">
+                    <li><a href="https://cloud.google.com/contact/form" target="_blank" class="hover:text-blue hover:underline">Hubungi bagian penjualan</a></li>
+                    <li><a href="https://cloud.google.com/find-a-partner" target="_blank" class="hover:text-blue hover:underline">Cari Partner</a></li>
+                    <li><a href="https://cloud.google.com/partners" target="_blank" class="hover:text-blue hover:underline">Menjadi Partner</a></li>
+                    <li><a href="https://cloud.google.com/events" target="_blank" class="hover:text-blue hover:underline">Acara</a></li>
+                    <li><a href="https://cloud.google.com/podcasts" target="_blank" class="hover:text-blue hover:underline">Podcast</a></li>
+                    <li><a href="https://developers.google.com" target="_blank" class="hover:text-blue hover:underline">Pusat Developer</a></li>
+                    <li><a href="https://cloud.google.com/press" target="_blank" class="hover:text-blue hover:underline">Press Corner</a></li>
+                    <li><a href="https://www.youtube.com/googlecloud" target="_blank" class="hover:text-blue hover:underline">Google Cloud di YouTube</a></li>
+                    <li><a href="https://www.youtube.com/googlecloudtech" target="_blank" class="hover:text-blue hover:underline">Google Cloud Tech di YouTube</a></li>
+                    <li><a href="https://twitter.com/googlecloud" target="_blank" class="hover:text-blue hover:underline">Ikuti di Twitter</a></li>
+                    <li><a href="https://services.google.com/fh/forms/misc/googleuserresearch" target="_blank" class="hover:text-blue hover:underline">Bergabung dengan Riset Pengguna</a></li>
+                    <li><a href="https://careers.google.com" target="_blank" class="hover:text-blue hover:underline">Kami membuka lowongan. Bergabunglah dengan Google Cloud!</a></li>
+                    <li><a href="https://cloud.google.com/community" target="_blank" class="hover:text-blue hover:underline">Komunitas Google Cloud</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="max-w-[1900px] mx-auto px-6 lg:px-8 py-6 border-t border-gray-200 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-greyteks">
+            <div class="flex flex-wrap items-center gap-4">
+                <a href="https://about.google" target="_blank" class="hover:text-blue hover:underline" x-text="$store.site.t('Tentang Google','About Google')"></a>
+                <a href="https://policies.google.com/privacy" target="_blank" class="hover:text-blue hover:underline" x-text="$store.site.t('Privasi','Privacy')"></a>
+                <a href="https://cloud.google.com/terms/site-terms-of-service" target="_blank" class="hover:text-blue hover:underline" x-text="$store.site.t('Persyaratan situs','Site terms')"></a>
+                <a href="https://cloud.google.com/terms" target="_blank" class="hover:text-blue hover:underline" x-text="$store.site.t('Persyaratan Google Cloud','Google Cloud terms')"></a>
+            </div>
+            <div class="flex items-center gap-2">
+                <span>🌱</span>
+                <a href="https://cloud.google.com/sustainability" target="_blank" class="hover:text-blue hover:underline" x-text="$store.site.t('Dekade ketiga kami dalam aksi iklim: bergabunglah bersama kami','Our third decade of climate action: join us')"></a>
+            </div>
+            <div class="flex items-center gap-3">
+                <span x-text="$store.site.t('Daftar ke newsletter Google Cloud','Sign up for the Google Cloud newsletter')"></span>
+                <a href="https://cloud.google.com/newsletter" target="_blank" class="bg-blue text-white text-xs font-medium px-4 py-2 rounded-full hover:bg-blue-700 transition" x-text="$store.site.t('Langganan','Subscribe')"></a>
+                <select class="border border-gray-300 rounded text-xs px-2 py-1.5 cursor-pointer" x-model="$store.site.lang">
+                    <option value="id">Indonesia</option>
+                    <option value="en">English</option>
+                </select>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

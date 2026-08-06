@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Belajar tailwind</title>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        blue: '#01152c',
+                        yellow: '#ffc701',
+                    },
+                },
+            },
+        }
+    </script>
+
+</head>
+
+<body class="flex min-h-screen flex-col bg-gray-100">
+    <header x-data="{ searchOpen : false}" class="sticky top-0 border-b border-slate-200 bg-blue">
+        <nav class="mx-auto max-w-6xl px-6 lg:px-10">
+            <div class="flex h-16 items-center justify-between">
+
+                <!--logo-->
+                <a class="flex items-center gap-3">
+                    <img src="img/logo.png" alt="Logo" class="h-10 w-full object-contain">
+
+                    <span class="text-lg font-semibold text-slate-900">Belajar Tailwind</span>
+                </a>
+
+                <!--bagian desktop-->
+                <div class="hidden items-center md:flex ">
+                    <div x-show="!searchOpen" x-transition:enter="transition duration-200"
+                        x-transition:enter-start="opacity-0 -translate-y-1"
+                        x-transition:enter-end="opacity-100 translate-y-0" class="flex items-center gap-4">
+
+                        <!-- tombol search -->
+                        <button type="button" arial-label="buka pencarian"
+                            @click="searchOpen = true; $nextTick(() => $refs.searchInput.focus() )" class="rounded-lg p-2 text-white transition hover:bg-white 
+                            hover:text-black">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+                                class="size-6">
+                                <path fill-rule="evenodd"
+                                    d="M10.5 3.75a6.75 6.75 0 1 0 0 13.5 6.75 6.75 0 0 0 0-13.5ZM2.25 10.5a8.25 8.25 0 1 1 14.59 5.28l4.69 4.69a.75.75 0 1 1-1.06 1.06l-4.69-4.69A8.25 8.25 0 0 1 2.25 10.5Z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                        </button>
+
+                        <div class="flex items-center gap-8 text-white ">
+                            <a class="font-medium  transition hover:text-red-700"> beranda</a>
+                            <a class="font-medium  transition hover:text-red-700"> tentang</a>
+                            <a class="font-medium  transition hover:text-red-700"> kontak</a>
+                        </div>
+                    </div>
+
+                    <!-- input search -->
+                    <div x-show="searchOpen" x-cloak x-transtion:enter="transition duration-200"
+                        x-transition:enter-start="opacity-0 translate-x-3"
+                        x-transition:enter-end="opacity-100 translate-x-0" x-transition:leave="transition duration-1500"
+                        x-transition:leave-start="opacity-100 translate-x-0"
+                        x-transition:leave-end="opacity-0 translate-x-3" @click.outside="searchOpen = false"
+                        @keydown.escape.window="searchOpen = false" class="flex w-96 items-center gap-2">
+
+                        <div class="relative flex-1">
+
+                            <svg xmlns="http://www.w3.org/2000/svg" class="pointer-events-none absolute left-3 top-1/2
+                                       h-5 w-5 -translate-y-1/2 text-slate-400" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor" stroke-width="2">
+                                <circle cx="11" cy="11" r="7"></circle>
+
+                                <path stroke-linecap="round" d="m20 20-3.5-3.5"></path>
+                            </svg>
+                            <input x-ref="searchInput" type="text" placeholder="Cari sesuatu..." class="w-full rounded-lg border border-slate-200 bg-white 
+                                py-2 pl-10 pr-3 text-sm text-slate-900 focus:border-blue focus:ring-blue">
+                        </div>
+
+                        <button type="button" aria-label="Tutup pencarian" @click="searchOpen = false" class="rounded-lg p-2 text-white transition 
+                            hover:bg-white hover:text-black">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+                                class="size-5">
+                                <path
+                                    d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" />
+                            </svg>
+
+
+                        </button>
+
+                    </div>
+
+
+
+                </div>
+
+                <!--menu mobile-->
+                <button id="menuButton" type="button" aria-label="Buka menu navigasi" aria-expanded="false"
+                    class="rounded-lg p-2 text-slate-700 transition hover:bg-slate-200 md:hidden">
+                    <!-- Hamburger icon -->
+                    <svg id="hamburgerIcon" xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+
+                    <!-- Close icon -->
+                    <svg id="closeIcon" xmlns="http://www.w3.org/2000/svg" class="hidden h-7 w-7" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+
+                    </svg>
+                </button>
+
+            </div>
+
+            <!-- menu mobile -->
+            <div id="mobileMenu" class="hidden border-6 border-slate-200 py-4 md:hidden">
+                <div class="flex flex-col gap-2">
+                    <a class="mobile-link rounded-lg px-4 py-3 font-medium
+                              text-slate-700 transition hover:text-blue-700"> beranda</a>
+                    <a class="mobile-link rounded-lg px-4 py-3 font-medium
+                              text-slate-700 transition hover:text-blue-700"> tentang</a>
+                    <a class="mobile-link rounded-lg px-4 py-3 font-medium
+                              text-slate-700 transition hover:text-blue-700"> kontak</a>
+                </div>
+
+            </div>
+
+        </nav>
+    </header>
+
+    <!-- main content -->
+    <main
+        class="mx-auto grid w-full max-w-6xl flex-1 grid-cols-1 gap-8 px-6 py-12 lg:grid-cols-1 lg:items-center lg:px-10">
+        <p class="font-bold text-red-500 text-center text-4xl">ini halaman tailwindcss </p>
+        <p class="font-bold text-red-500 text-center text-4xl">ini halaman tailwindcss </p>
+        <p class="font-bold text-red-500 text-center text-4xl">ini halaman tailwindcss </p>
+
+        <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+
+            <!-- card 1 -->
+            <div class="overflow-hidden bg-white show-md transition hover:-translate-y-1 hover:shadow-xl ">
+                <img src="img/logo.png" alt="Gambar 1" class="h-48 w-full object-cover">
+
+                <div class="p-6">
+                    <p class="mb-2 text-lg font-semibold text-slate-900">belajar tailwindcss</p>
+                    <p class="text-sm text-slate-500">belajar tag-tag pada tailwindcss</p>
+
+                </div>
+
+            </div>
+
+            <div class="overflow-hidden bg-white show-md transition hover:-translate-y-1 hover:shadow-xl ">
+                <img src="img/logo.png" alt="Gambar 1" class="h-48 w-full object-cover">
+
+                <div class="p-6">
+                    <p class="mb-2 text-lg font-semibold text-slate-900">belajar tailwindcss</p>
+                    <p class="text-sm text-slate-500">belajar tag-tag pada tailwindcss</p>
+
+                </div>
+
+            </div>
+
+            <div class="overflow-hidden bg-white show-md transition hover:-translate-y-1 hover:shadow-xl ">
+                <img src="img/logo.png" alt="Gambar 1" class="h-48 w-full object-cover">
+
+                <div class="p-6">
+                    <p class="mb-2 text-lg font-semibold text-slate-900">belajar tailwindcss</p>
+                    <p class="text-sm text-slate-500">belajar tag-tag pada tailwindcss</p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- modal pop up -->
+        <section x-data="{ modalOpen: false} " class="text-center">
+            <button type="button" @click="modalOpen = true" class="bg-blue px-6 py-3 text-white hover:bg-yellow">
+                Buka Modal
+            </button>
+
+            <!-- Modal -->
+            <div x-show="modalOpen" x-cloak x-transition.opacity @keydown.escape.window="modalOpen = false"
+                class="fixed inset-0 z-[60] flex items-center justify-center bg-yellow/60 px-4 ">
+
+                <!-- Modal content -->
+                <div x-show="modalOpen" x-transition @click.outside="modalOpen = false"
+                    class="w-full max-w-md bg-white p-6 text-center shadow">
+                    <p>ini adalah contol pop up</p>
+
+                </div>
+
+
+            </div>
+
+        </section>
+        <!--faq-->
+        <section id="faq" class="mt-16">
+            <div class="mx-auto max-w-2xl text-center">
+                <p>faq Content</p>
+            </div>
+        
+        <!--faq center-->
+        <div x-data="{activeFaq: null}" class="mx-auto mt-8 max-w-3xl space-y-4">
+            <div class="overlow-hidden rounded-2xl border border-slate-200 bg-white">
+                <button type="button" @click="activeFaq = activeFaq === 1 ? null : 1" 
+                class="flex w-full items-center justify-between gap-4 px-6 py-5 text-left">
+                <span class="font-semibold text-slate-900">Apa itu Tailwind css</span>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-5 w-5 shrink-0 transition-transfrom duration-300" 
+                    :class="activeFaq === 1 ? 'rotate-180':''"
+                    viewbox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2">
+                <path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z" />
+                </svg>
+
+
+                </button>
+                <div x-show="activeFaq === 1" x-transition x-cloak>
+                    <p class="border-t border-slate-200 px-6 py-5 leading-7 text-sm text-slate-700">
+                        Tailwind CSS adalah framework yang memungkinkan pengembang untuk membuat antarmuka pengguna yang responsif dan dapat disesuaikan dengan cepat menggunakan class-class utilitas
+                    </p>
+
+                </div>
+            </div>
+        </div>
+
+        </section>
+    </main>
+
+    <footer id="footer" class="bg-yellow text-slate-300 ">
+        <div class="mx-auto flex max-w-6xl flex-col gap-4 px-6 py-6
+                    text-center sm:flex-row sm:items-center
+                    sm:justify-between sm:text-left lg:px-10">
+            <p class="text-sm">
+                &copy; 2024 Belajar Tailwind. All rights reserved.
+            </p>
+            <div class="flex justify-center gap-5 text-sm">
+                <a class="transition hover:text-blue-700"> beranda</a>
+                <a class="transition hover:text-blue-700"> tentang</a>
+                <a class="transition hover:text-blue-700"> kontak</a>
+
+            </div>
+
+        </div>
+
+    </footer>
+
+    <!-- <script>
+    const menuButton = document.getElementById('menuButton');
+    const mobileMenu = document.getElementById('mobileMenu');
+    const hamburgerIcon = document.getElementById('hamburgerIcon');
+    const closeIcon = document.getElementById('closeIcon');
+    const mobileLinks = mobileMenu.querySelectorAll('.mobile-link');
+
+    function closeMobileMenu() {
+        mobileMenu.classList.add('hidden');
+        hamburgerIcon.classList.remove('hidden');
+        closeIcon.classList.add('hidden');
+        menuButton.setAttribute('aria-expanded', 'false');
+    }
+
+    menuButton.addEventListener('click', function () {
+        const isClosed = mobileMenu.classList.contains('hidden');
+
+        mobileMenu.classList.toggle('hidden');
+        hamburgerIcon.classList.toggle('hidden');
+        closeIcon.classList.toggle('hidden');
+        menuButton.setAttribute('aria-expanded', isClosed ? 'true' : 'false');
+    });
+
+    mobileLinks.forEach(link => {
+        link.addEventListener('click', closeMobileMenu);
+    });
+</script> -->
+
+</body>
+
+</html>
